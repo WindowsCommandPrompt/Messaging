@@ -4,7 +4,7 @@
 
 - [X] Users can now sign into the account using an existing account. 
 - [X] Users can now create an account of using a custom username or custom password. 
-    - [X] 
+    - [X] Users can now change their username or password using the in-app password and username change utility tool. 
 
   
 # How do you use the string regex command
@@ -13,7 +13,7 @@
     <th> 
       Keyword / Method 
     </th>
-    <th colspan = "12"> 
+    <th> 
       Description
     </th>
     <th> 
@@ -28,7 +28,7 @@
       <code>@regexDivision{ }</code>
     </td>
     <td align="justify"> 
-      Main entry point into every single regex-Co (regex-conditional) statement. Failure to include this statement while writing regex-Co statement will result in an error being thrown
+      Main entry point into every single regex-Co (regex-conditional) statement.
     </td>
     <td> 
       <code> 
