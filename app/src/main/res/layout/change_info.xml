@@ -1,0 +1,575 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app = "http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/loginPageBackgroundColour"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+        <!--Insert a text view over here-->
+        <TextView
+            android:layout_width = "match_parent"
+            android:layout_height = "wrap_content"
+            android:text = "CHANGE PERSONAL PARTICULARS"
+            android:fontFamily = "sans-serif-condensed"
+            android:textSize = "55px"
+            android:textStyle = "bold"
+            android:gravity = "center" />
+        <Space
+            android:layout_width = "match_parent"
+            android:layout_height = "100px" />
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/purple_200"
+            app:cardCornerRadius="30px"
+            app:contentPadding="5px">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius = "30px"
+                    app:cardBackgroundColor="@color/black"
+                    app:contentPadding="8px">
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="30px">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation = "vertical">
+                            <TextView
+                                android:layout_width = "match_parent"
+                                android:layout_height = "wrap_content"
+                                android:text = "USERNAME CHANGE"
+                                android:gravity = "center"
+                                android:textSize = "50px"
+                                android:textStyle = "bold"/>
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity = "center_horizontal"
+                                android:orientation = "horizontal">
+                                <TextView
+                                    android:layout_width="0px"
+                                    android:layout_weight = "0.99"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center_vertical"
+                                    android:text="Set new username: "
+                                    android:textSize="46px"/>
+                                <EditText
+                                    android:id = "@+id/newUsername"
+                                    android:layout_height="match_parent"
+                                    android:layout_width = "0px"
+                                    android:layout_weight = "1"/>
+                                <androidx.cardview.widget.CardView
+                                    android:id = "@+id/help1"
+                                    android:clickable = "true"
+                                    android:layout_width="0px"
+                                    android:layout_weight = "0.25"
+                                    android:layout_height="match_parent"
+                                    app:cardBackgroundColor="@color/waveColor"
+                                    app:cardCornerRadius="40px">
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:gravity="center">
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text = "\?"
+                                            android:textStyle = "bold"
+                                            android:textColor = "@color/white"
+                                            android:textSize = "35dp"/>
+                                    </LinearLayout>
+                                </androidx.cardview.widget.CardView>
+                            </LinearLayout>
+                            <Space
+                                android:layout_width = "match_parent"
+                                android:layout_height = "60px"/>
+
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+                </androidx.cardview.widget.CardView>
+                <!--Insert a space between these 2 boxes-->
+                <Space
+                    android:layout_width = "match_parent"
+                    android:layout_height = "30px" />
+                <!--Password change group-->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius = "30px"
+                    app:cardBackgroundColor="@color/black"
+                    app:contentPadding="8px">
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="30px">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity = "center_horizontal"
+                            android:orientation = "vertical">
+                            <TextView
+                                android:layout_width = "match_parent"
+                                android:layout_height = "wrap_content"
+                                android:text = "PASSWORD CHANGE"
+                                android:gravity = "center"
+                                android:textSize = "50px"
+                                android:textStyle = "bold"/>
+                            <!--Linear layout-->
+                            <LinearLayout
+                                android:layout_height = "wrap_content"
+                                android:layout_width = "match_parent"
+                                android:gravity = "center">
+                                <TextView
+                                    android:layout_width="0px"
+                                    android:layout_weight = "0.99"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center_vertical"
+                                    android:text="Enter old password: "
+                                    android:textSize="45px"></TextView>
+                                <EditText
+                                    android:id = "@+id/oldPassword"
+                                    android:layout_height="match_parent"
+                                    android:layout_width = "0px"
+                                    android:layout_weight = "1"></EditText>
+                                <androidx.cardview.widget.CardView
+                                    android:id = "@+id/help2"
+                                    android:clickable = "true"
+                                    android:layout_width="0px"
+                                    android:layout_weight = "0.25"
+                                    android:layout_height="match_parent"
+                                    app:cardBackgroundColor="@color/waveColor"
+                                    app:cardCornerRadius="40px">
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:gravity="center">
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text = "\?"
+                                            android:textStyle = "bold"
+                                            android:textColor = "@color/white"
+                                            android:textSize = "35dp"/>
+                                    </LinearLayout>
+                                </androidx.cardview.widget.CardView>
+                            </LinearLayout>
+                            <Space
+                                android:layout_width = "match_parent"
+                                android:layout_height = "100px"/>
+                            <LinearLayout
+                                android:layout_height = "wrap_content"
+                                android:layout_width = "match_parent"
+                                android:gravity = "center">
+                                <TextView
+                                    android:layout_width="0px"
+                                    android:layout_weight = "0.99"
+                                    android:layout_height="match_parent"
+                                    android:gravity = "center_vertical"
+                                    android:text="Set new password: "
+                                    android:textSize="45px"></TextView>
+                                <EditText
+                                    android:id = "@+id/newPassword"
+                                    android:layout_height="match_parent"
+                                    android:layout_width = "0px"
+                                    android:layout_weight = "1"></EditText>
+                                <androidx.cardview.widget.CardView
+                                    android:id = "@+id/help3"
+                                    android:clickable = "true"
+                                    android:layout_width="0px"
+                                    android:layout_height="match_parent"
+                                    app:cardBackgroundColor="@color/waveColor"
+                                    android:layout_weight = "0.25"
+                                    app:cardCornerRadius="40px">
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:gravity="center">
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text = "\?"
+                                            android:textStyle = "bold"
+                                            android:textColor = "@color/white"
+                                            android:textSize = "35dp"/>
+                                    </LinearLayout>
+                                </androidx.cardview.widget.CardView>
+                            </LinearLayout>
+                            <Space
+                                android:layout_width = "match_parent"
+                                android:layout_height = "100px"/>
+                            <LinearLayout
+                                android:layout_height = "wrap_content"
+                                android:layout_width = "match_parent"
+                                android:gravity = "center">
+                                <TextView
+                                    android:layout_width="0px"
+                                    android:layout_weight = "0.99"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center"
+                                    android:text="Confirm new password: "
+                                    android:textSize="45px"></TextView>
+                                <EditText
+                                    android:id = "@+id/confirmPassword"
+                                    android:layout_height="match_parent"
+                                    android:layout_width = "0px"
+                                    android:layout_weight = "1"></EditText>
+                                <androidx.cardview.widget.CardView
+                                    android:id = "@+id/help4"
+                                    android:clickable = "true"
+                                    android:layout_width="0px"
+                                    android:layout_height="match_parent"
+                                    app:cardBackgroundColor="@color/waveColor"
+                                    android:layout_weight = "0.25"
+                                    app:cardCornerRadius="40px">
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:gravity="center">
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text = "\?"
+                                            android:textStyle = "bold"
+                                            android:textColor = "@color/white"
+                                            android:textSize = "35dp"/>
+                                    </LinearLayout>
+                                </androidx.cardview.widget.CardView>
+                            </LinearLayout>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+                </androidx.cardview.widget.CardView>
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@color/black"
+                    app:cardCornerRadius="40px">
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width = "match_parent"
+            android:layout_marginTop = "120px"
+            android:orientation = "horizontal"
+            android:gravity = "center_horizontal">
+            <Button
+                android:id = '@+id/confirmChanges'
+                android:layout_width = "300px"
+                android:layout_height = "150px"
+                android:text = "Save"
+                app:backgroundTint = "@null"
+                android:background = "@color/green"></Button>
+            <!--Unfortunately for buttons you will have to use a @drawable resource-->
+            <Button
+                android:id = '@+id/cancelChanges'
+                android:layout_width = "300px"
+                android:layout_height = "150px"
+                android:text = "CANCEL"
+                android:layout_marginLeft = "120px"
+                app:backgroundTint = "@null"
+                android:background = "@drawable/buttonstyling">
+            </Button>
+        </LinearLayout>
+    </LinearLayout>
+        <LinearLayout
+            android:id = "@+id/guideBase"
+            android:layout_width = "match_parent"
+            android:layout_height = "match_parent"
+            android:orientation = "vertical">
+            <!--Stackable relative layout-->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <LinearLayout
+                    android:layout_width = "match_parent"
+                    android:layout_height="match_parent"
+                    android:background = "@color/black"
+                    android:alpha = "0.65">
+                </LinearLayout>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <androidx.cardview.widget.CardView
+                        android:id = "@+id/introductoryText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:cardBackgroundColor = "@color/white"
+                        app:cardCornerRadius="15px"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+                        <LinearLayout
+                            android:id = "@+id/introductoryTextInnerContainer"
+                            android:layout_height = "wrap_content"
+                            android:layout_width="wrap_content"
+                            android:orientation = "vertical"
+                            android:gravity = "center">
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:layout_height = "wrap_content"
+                                android:layout_width = "match_parent">
+                                <ImageView
+                                    android:id = "@+id/close"
+                                    android:clickable = "true"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintLeft_toLeftOf="parent"
+                                    app:layout_constraintRight_toRightOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent"
+                                    app:layout_constraintHorizontal_bias="1"
+                                    android:layout_height = "wrap_content"
+                                    android:layout_width="wrap_content"
+                                    android:src = "@drawable/ic_baseline_close_24" />
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+                            <TextView
+                                android:layout_width = "wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text = "New design for the password reset utility!"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation = "horizontal"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintVertical_bias="0.85"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+                        <!-- for first button -->
+                            <LinearLayout
+                                android:layout_height = "wrap_content"
+                                android:layout_width="0px"
+                                android:layout_weight = "1"
+                                android:gravity = "center_horizontal">
+                                <androidx.constraintlayout.widget.ConstraintLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content">
+                                    <RelativeLayout
+                                        android:clickable = "true"
+                                        android:id = "@+id/prevButton"
+                                        android:layout_width = "51px"
+                                        android:layout_height = "51px"
+                                        app:layout_constraintLeft_toLeftOf="parent"
+                                        app:layout_constraintRight_toRightOf="parent"
+                                        app:layout_constraintTop_toTopOf="parent"
+                                        app:layout_constraintBottom_toBottomOf="parent">
+                                        <androidx.cardview.widget.CardView
+                                            android:clickable = "true"
+                                            android:id = "@+id/previousItem"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="match_parent"
+                                            app:cardCornerRadius = "9600px"
+                                            app:cardBackgroundColor="@color/white">
+                                            <ImageView
+                                                android:layout_width="match_parent"
+                                                android:layout_height="match_parent"
+                                                android:src = "@drawable/ic_baseline_keyboard_arrow_left_24" />
+                                        </androidx.cardview.widget.CardView>
+                                    </RelativeLayout>
+                                </androidx.constraintlayout.widget.ConstraintLayout>
+                            </LinearLayout>
+                        <!--Next button-->
+                            <LinearLayout
+                                android:layout_height = "wrap_content"
+                                android:layout_width="0px"
+                                android:layout_weight = "1"
+                                android:gravity = "center_horizontal">
+                                <androidx.constraintlayout.widget.ConstraintLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content">
+                                    <RelativeLayout
+                                        android:clickable = "true"
+                                        android:id = "@+id/nextButton"
+                                        android:layout_width="51px"
+                                        android:layout_height="51px"
+                                        app:layout_constraintLeft_toLeftOf="parent"
+                                        app:layout_constraintRight_toRightOf="parent"
+                                        app:layout_constraintTop_toTopOf="parent"
+                                        app:layout_constraintBottom_toBottomOf="parent">
+                                        <androidx.cardview.widget.CardView
+                                            android:layout_width="match_parent"
+                                            android:layout_height="match_parent"
+                                            app:cardCornerRadius = "9600px"
+                                            app:cardBackgroundColor="@color/white">
+                                            <ImageView
+                                                android:layout_width="match_parent"
+                                                android:layout_height="match_parent"
+                                                android:src = "@drawable/ic_baseline_keyboard_arrow_right_24" />
+                                        </androidx.cardview.widget.CardView>
+                                    </RelativeLayout>
+                                </androidx.constraintlayout.widget.ConstraintLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+                    <LinearLayout
+                        android:id = '@+id/linearLayoutContainerForIndicator'
+                        android:layout_width="match_parent"
+                        android:layout_height="100px"
+                        android:gravity = "center"
+                        android:orientation = "horizontal"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintVertical_bias="1"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="50px"
+                            android:layout_height="50px"
+                            app:cardBackgroundColor="@color/red">
+                        </androidx.cardview.widget.CardView>
+                        <Space
+                            android:layout_height = "match_parent"
+                            android:layout_width = "wrap_content" />
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="50px"
+                            android:layout_height="50px"
+                            app:cardBackgroundColor="@color/white">
+                        </androidx.cardview.widget.CardView>
+                        <Space
+                            android:layout_height = "match_parent"
+                            android:layout_width = "wrap_content" />
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="50px"
+                            android:layout_height="50px"
+                            app:cardBackgroundColor="@color/white">
+                        </androidx.cardview.widget.CardView>
+                        <Space
+                            android:layout_height = "match_parent"
+                            android:layout_width = "wrap_content" />
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="50px"
+                            android:layout_height="50px"
+                            app:cardBackgroundColor="@color/white">
+                        </androidx.cardview.widget.CardView>
+                    </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </RelativeLayout>
+        </LinearLayout>
+        <!--Help pop-ups-->
+        <LinearLayout
+            android:id = "@+id/base1Layout"
+            android:layout_width = "wrap_content"
+            android:layout_height = "wrap_content"
+            android:orientation = "horizontal"
+            android:alpha = "0"
+            android:visibility = "gone">
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/green"
+                app:cardCornerRadius = "30px"
+                app:contentPadding = "15px">
+                <LinearLayout
+                    android:layout_width = "match_parent"
+                    android:layout_height = "wrap_content">
+                    <TextView
+                        android:layout_height = "wrap_content"
+                        android:layout_width = "match_parent"
+                        android:textSize = "30px"
+                        android:text = "Enter your new username here"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+        <LinearLayout
+            android:id = "@+id/base2Layout"
+            android:layout_width = "wrap_content"
+            android:layout_height = "wrap_content"
+            android:orientation = "horizontal"
+            android:alpha = "0"
+            android:visibility = "gone">
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/green"
+                app:cardCornerRadius = "30px"
+                app:contentPadding = "15px">
+                <LinearLayout
+                    android:layout_width = "match_parent"
+                    android:layout_height = "wrap_content">
+                    <TextView
+                        android:layout_height = "wrap_content"
+                        android:layout_width = "match_parent"
+                        android:textSize = "30px"
+                        android:text = "Enter the password that you have used previously for your account"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+        <LinearLayout
+            android:id = "@+id/base3Layout"
+            android:layout_width = "wrap_content"
+            android:layout_height = "wrap_content"
+            android:orientation = "horizontal"
+            android:alpha = "0"
+            android:visibility = "gone">
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/green"
+                app:cardCornerRadius = "30px"
+                app:contentPadding = "15px">
+                <LinearLayout
+                    android:layout_width = "match_parent"
+                    android:layout_height = "wrap_content">
+                    <TextView
+                        android:layout_height = "wrap_content"
+                        android:layout_width = "match_parent"
+                        android:textSize = "30px"
+                        android:text = "Enter your new password in this field over here"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+        <LinearLayout
+            android:id = "@+id/base4Layout"
+            android:layout_width = "wrap_content"
+            android:layout_height = "wrap_content"
+            android:orientation = "horizontal"
+            android:alpha = "0"
+            android:visibility="gone">
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/green"
+                app:cardCornerRadius = "30px"
+                app:contentPadding = "15px">
+                <LinearLayout
+                    android:layout_width = "match_parent"
+                    android:layout_height = "wrap_content">
+                    <TextView
+                        android:layout_height = "wrap_content"
+                        android:layout_width = "match_parent"
+                        android:textSize = "30px"
+                        android:text = "Re-enter your new password again in this field"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1033218024022",
+    "project_id": "mydatabasepractical6mad",
+    "storage_bucket": "mydatabasepractical6mad.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1033218024022:android:1cc2c85193ad4998b651f7",
+        "android_client_info": {
+          "package_name": "sg.np.edu.mad.animationtest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1033218024022-qfjb9bao6h7h7cm10i4cogtoc81si496.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvcG2C9ejhd-qeZ5ha-Zmn7mb8HTR2K-s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1033218024022-qfjb9bao6h7h7cm10i4cogtoc81si496.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

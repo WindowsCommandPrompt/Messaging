@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".user_landing">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/loginPageBackgroundColour"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <TextView
+            android:visibility = "gone"
+            android:layout_width="0px"
+            android:layout_height="0px"
+            android:text = ""
+            android:id = "@+id/tempString"/>
+        <TextView
+            android:visibility = "gone"
+            android:layout_width = "0px"
+            android:layout_height = "0px"
+            android:text = ""
+            android:id = "@+id/databaseStringLength" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text = "LOGIN"
+            android:textSize = "90px"
+            android:gravity = "center_horizontal">
+        </TextView>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity = "center_horizontal"
+            android:layout_marginTop = "220px">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity = "center"
+                android:textSize = "70px"
+                android:text = "Username: "></TextView>
+            <EditText
+                android:layout_width="500px"
+                android:layout_height="100px"
+                android:id = "@+id/usernameField"></EditText>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity = "center_horizontal"
+            android:layout_marginTop = "120px">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity = "center"
+                android:textSize = "70px"
+                android:text = "Password: "></TextView>
+            <EditText
+                android:layout_width="500px"
+                android:layout_height="100px"
+                android:id = "@+id/passwordField"></EditText>
+        </LinearLayout>
+        <Button
+            android:layout_width="300px"
+            android:layout_height="160px"
+            android:text = "@string/buttonText"
+            android:layout_marginTop = "220px"
+            android:id = "@+id/myLoginButton"></Button>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text = "New User?"
+            android:gravity = "center_horizontal"
+            android:layout_marginTop = "120px"
+            android:id = "@+id/createNewUser"
+            style = "@style/GreenText"></TextView>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

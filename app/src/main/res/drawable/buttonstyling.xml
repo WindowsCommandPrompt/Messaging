@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="150"
+    android:viewportHeight="150">
+    <!--Define the container for the colour to go in-->
+    <path
+        android:strokeWidth = "0.5"
+        android:fillColor = "#FF0000"
+        android:pathData = "M0,141L0,160C0,0 -9,0 20,0H144C0,144 145,-55 150,14V144C150,144 149,149 144,150L0,150C16,150 0,152 0,141z">
+    </path>
+</vector>
