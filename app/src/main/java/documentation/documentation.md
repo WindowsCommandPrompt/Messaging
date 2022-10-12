@@ -13,7 +13,7 @@
     <th> 
       Keyword / Method 
     </th>
-    <th> 
+    <th colspan = "12"> 
       Description
     </th>
     <th> 
@@ -69,12 +69,13 @@
           <td align = "center"> 2 </td>
           <td align= "justify"><code>regexDivision</code></td>
           <td>Absent <code>@</code> in front of reserved keyword in the regex conditional statement. </td>
-          <td><code>E1b: Expected '@' in front of regexDivision to complete reserved keyword declaration.</code></td>
+          <td align = "justify"><code>E1b: Expected '@' in front of regexDivision to complete reserved keyword declaration.</code></td>
         </tr>
         <tr> 
           <td align = "center"> 3 </td>
           <td align = "justify"><code>regexDivi</code></td>
           <td> There is no such keyword found </td>
+          <td> </td>
         </tr>
       </table>
     </td>
