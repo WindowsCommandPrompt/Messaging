@@ -1,9 +1,7 @@
 package sg.np.edu.mad.animationtest;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.*;
 
@@ -891,19 +889,54 @@ final class Tools {
                 this.target = target;
             }
 
-            public <T> int in(@NonNull T[] charArr){  //find index of something
-                Function<Integer, Integer> a = arrSize -> {
-                    int initializer = 0;
-                    do {
-                        if (charArr[initializer] == this.target) {
-                            return initializer;
+            //find index of something, but the array must be storing reference types, primitive types are not permitted over here
+            public <T> int in(@NonNull T[] charArr){
+                Supplier<Boolean> checker = () -> {
+                    //single dimensional arrays only
+                    char[] filter = charArr.getClass().toString().toCharArray();
+                    int nestedCount = 0;
+                    for (char c : filter) {
+                        if (c == '[') {
+                            ++nestedCount;
                         }
-                        ++initializer;
                     }
-                    while (initializer < arrSize);
+                    return nestedCount == 1;
+                };
+                Function<Integer, Integer> a = arrSize -> {
+                    if (charArr.length > 0) {
+                        int initializer = 0;
+                        do {
+                            if (charArr[initializer] == this.target) {
+                                return initializer;
+                            }
+                            ++initializer;
+                        }
+                        while (initializer < arrSize);
+                    }
+                    Log.w("LENGTHISZERO", "The length of the supplied array has a length of 0. This will affect normal functioning of this method. As a result, this method will be returning a value of -1. \n This warning has been raised from the following method: Tools.ArrayUtilsCustom.InternalArrayStorageSearchingSingle.in()");
                     return -1;
                 };
-                return charArr.length > 0 ? a.apply(charArr.length) : -1;
+                Supplier<Integer> warn = () -> {
+                    Log.w("NOTSINGLEDIMENSIONALARRAY", "Not a single dimensional array. This will affect normal functioning of this method. As a result, this method will be returning a value of -1.\n This warning has been raised from the following method: Tools.ArrayUtilsCustom.InternalArrayStorageSearchingSingle.in()");
+                    return -1;
+                };
+                return checker.get() ? a.apply(charArr.length) : warn.get();
+            }
+
+            //find index of something, but the array can now accept primitive data types, reference types use the previous method.
+            public <PrimitiveArray> int inPrimit(@NonNull PrimitiveArray array){
+                Supplier<Boolean> checker = () -> {
+                    //single dimensional arrays only
+                    char[] filter = array.getClass().toString().toCharArray();
+                    int nestedCount = 0;
+                    for (char c : filter) {
+                        if (c == '[') {
+                            ++nestedCount;
+                        }
+                    }
+                    return nestedCount == 1;
+                };
+
             }
         }
 
@@ -945,7 +978,7 @@ final class Tools {
         }
     }
 
-    public static class StringAddOn{
+    public static final class StringAddOn{
 
         private final String str;
 
@@ -1000,7 +1033,67 @@ final class Tools {
             return a;
         }
 
-        public void splitWithRegexConditions(String command) throws RegexCommandSyntaxError{
+        //This class shall be declared as private LOL
+        public final class Determinant{
+            private Object target;
+
+            public <T> Determinant(T target){
+                this.target = target;
+            }
+
+            public Determinant(){
+
+            }
+
+            public <T> boolean is(final T retrieval) {
+                return (
+                    retrieval.getClass().isPrimitive() && this.target.getClass().isPrimitive() ? retrieval == this.target : retrieval.equals(this.target)
+                );
+            }
+
+            public String getString(){
+                return (String) this.target;
+            }
+
+            public boolean hasNext(){
+
+            }
+        }
+
+        // "String" => [s][t][r][i][n][g] => apply after('r') => returns Determinant => apply is() => returns a boolean value
+        public Determinant after(char target) throws ContentsNotPrimitiveException, NotAnArrayException {
+            char[] charArray = this.str.toCharArray();
+            for (char c : charArray){
+                if (c == target){
+                    return new Determinant(charArray[ArrayUtilsCustom.findIndexOfElement(c).in(Converter.ReferenceTypeConverter.simplifiedToComplexArray(charArray)) + 1]);
+                }
+            }
+            Log.i("TARGETNOTFOUND", "Required target character was not found. \n This warning message has been raised from the following method: Tools.StringAddOn.after()");
+            //return unparameterized constructor instead of null
+            return new Determinant();
+        }
+
+        public Determinant before(char target) throws ContentsNotPrimitiveException, NotAnArrayException {
+            char[] charArray = this.str.toCharArray();
+            for (char c : charArray){
+                if (c == target){
+                    return new Determinant(charArray[ArrayUtilsCustom.findIndexOfElement(c).in(Converter.ReferenceTypeConverter.simplifiedToComplexArray(charArray)) - 1]);
+                }
+            }
+            Log.i("TARGETNOTFOUND", "Required target character was not found. Throwing error message from Tools.StringAddOn.before()");
+            return new Determinant();
+        }
+
+        @SuppressWarnings("unchecked")
+        public <T> T setAnchorAt(char target){
+            char[] charArray = this.str.toCharArray();
+            if (charArray[0] == target){
+                return (T) new Determinant(new String(charArray));
+            }
+            Log.i("TARGETNOTFOUND", "Required target character was not found. Throwing error message from Tools.StringAddOn.setAnchorAt()");
+        }
+
+        public String[] splitWithRegexConditions(String command) throws RegexConditionalCommandSyntaxError{
             /*
                 Command syntax:
 
@@ -1019,19 +1112,31 @@ final class Tools {
                 }
              */
             String[] basicTokenizing = command.split(" ");
-            ArrayList<RegexCommandSyntaxError> errorList = new ArrayList<>();
+            ArrayList<RegexConditionalCommandSyntaxError> errorList = new ArrayList<>();
             for (int i = 0; i < basicTokenizing.length; ++i){
                 if (!(new ArrayUtilsCustom.ArraysExt<String>(basicTokenizing).startsWith("@regexDivision{"))){
-                    if (basicTokenizing[basicTokenizing.length - 1].){
-
+                    //did not start with "@"
+                    if (!basicTokenizing[0].startsWith("@")){
+                        errorList.add(new RegexConditionalCommandSyntaxError("E1b: Expected '@' in front of RegexDivision"));
                     }
-                        errorList.add(new RegexCommandSyntaxError("E1: '{' expected at the start of statement"));
+                    else {
+                        //check character after '@'.
+                            errorList.add(new RegexConditionalCommandSyntaxError("E1: '{' expected at the start of statement"));
+                    }
                 }
 
                 if (!(new ArrayUtilsCustom.ArraysExt<String>(basicTokenizing).endsWith("}"))){
-                    errorList.add(new RegexCommandSyntaxError("E9: '}' expected at the end of the regex-co statement"));
+                    errorList.add(new RegexConditionalCommandSyntaxError("E9: '}' expected at the end of the regex-co statement"));
                 }
             }
+        }
+    }
+
+    public static class RegexWithConditionals{
+        private String command;
+
+        public RegexWithConditionals(String command){
+
         }
     }
 
@@ -1152,7 +1257,8 @@ final class Tools {
                     }
                     catch (Exception e2){
                         try {
-                            return (T) Boolean.valueOf((boolean) value);
+                            //try to cast the item into a string?
+                            return ((String) value).length() == 1 ? (T) Character.valueOf((char) value) : ((String) value).equals("true") || ((String) value).equals("false") ? (T) Boolean.valueOf((boolean) value) : (T) String.valueOf((String) value);
                         }
                         catch (Exception e3) {
                             throw new ContentsNotPrimitiveException("The provided results is not of a primitive type. Accepted primitive types include 'int', 'char', 'boolean', 'long', 'short', 'byte', 'float', 'double");
@@ -1185,6 +1291,46 @@ final class Tools {
 
             public static void convertBinaryToDecimal(Binary binaryNum){
                 int internal = binaryNum.getBinaryNum();
+
+            }
+        }
+    }
+
+    @ParameterTypes(input = { String.class, String.class }, index = 0) //apply to first ELasticFunction
+    @ParameterTypes(input = { String.class, int.class }, output = double.class, index = 1)
+    @ParameterTypes(input = { String.class, int.class, double.class }, output = float.class, index = 3)
+    public static void Test() throws NoSuchMethodException{
+        ElasticFunction elasticFunc = arr -> {
+            //Number of parameters supplied by input must equate to number of elements in
+
+
+            return null;
+        };
+
+
+        elasticFunc.apply("Test", "string2", "this stupid thing");
+
+    }
+
+    //Function<P1, P2, R> only accepts a total of 2 parameters
+    @FunctionalInterface
+    interface ElasticFunction {
+        //all annotations are interfaces! T now becomes a sub interface???
+        Object apply(String methodName, Object... a) throws NoSuchMethodException;
+    }
+
+    public static class FunctionExtra implements ElasticFunction{
+        @Override
+        public Object apply(String methodName, Object... a) throws NoSuchMethodException {
+            //find the method return the annotation.
+            Function<java.lang.reflect.Method, Object[]> res = x -> {
+                Class<?>[] classTypes = ((ParameterTypes) x.getAnnotation(ParameterTypes.class)).input();
+                Class<?> output = ((ParameterTypes) x.getAnnotation(ParameterTypes.class)).output();
+                return new Object[]{ classTypes, output };
+            };
+            // if a[i] not an instanceof Class<?>[i] then throw an exception
+            java.lang.reflect.Method m = Tools.class.getMethod(methodName);
+            for (int i = 0; i < a.length; i++){ //a contains a list of parameters... by right idk
 
             }
         }

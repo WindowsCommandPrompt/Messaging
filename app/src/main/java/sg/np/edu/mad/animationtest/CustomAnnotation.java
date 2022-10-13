@@ -1,7 +1,7 @@
 package sg.np.edu.mad.animationtest;
 
 import java.lang.annotation.*;
-import java.util.function.*;
+import java.lang.reflect.*;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.PARAMETER, ElementType.METHOD})
@@ -54,7 +54,6 @@ class CharacterCategory {
 @interface CharRange {
     //default value based on CharacterCategory.getValue()
     char from() default new CharacterCategory().getValue();
-
     char to() default 'z';
 }
 
@@ -62,9 +61,27 @@ class CharacterCategory {
 @Target(value = {ElementType.PARAMETER, ElementType.METHOD})
 @interface AcceptStringsByRegex {
     String[] multipleRegex() default "";
-
     String singleRegex() default "";
 }
+
+//@FunctionalInterfaceParameterTypes(inputVariableTypes = { String.class, String.class, String.class }, outputVariableTypes = void.class)
+@Retention(RetentionPolicy.RUNTIME)
+@Target(value = {ElementType.METHOD})
+@Repeatable(value = {ElasticFunctionParameters.class})
+@interface ParameterTypes{
+    Class<?>[] input() default { };
+    Class<?> output() default void.class;
+    int index() default 0;
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(value = {ElementType.ANNOTATION_TYPE})
+@interface ElasticFunctionParameters {
+    ParameterTypes[] value();
+}
+
+
+
 
 
 

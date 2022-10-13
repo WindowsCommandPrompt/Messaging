@@ -8,14 +8,6 @@ final class InvalidBinaryNumberFormat extends Exception {
     public InvalidBinaryNumberFormat (String msg){
         this.msg = msg;
     }
-
-    public void setMessage(String msg){
-        this.msg = msg;
-    }
-
-    public String getMessage(String msg){
-        return this.msg;
-    }
 }
 
 
@@ -27,14 +19,15 @@ final class NotAnArrayException extends Exception {
     }
 
     public NotAnArrayException() { }
+}
 
-    public void setMessage(String msg){
-        this.msg = msg;
-    }
+//This error will be thrown when a multi-dimensional array is supplied instead of a single dimension array
+final class NotSingleDimensionalArrayException extends Exception {
+    private String msg;
 
-    public String getMessage(String msg){
-        return this.msg;
-    }
+    public NotSingleDimensionalArrayException() { }
+
+    public NotSingleDimensionalArrayException(String msg) { this.msg = msg; }
 }
 
 final class ContentsNotPrimitiveException extends Exception {
@@ -45,14 +38,6 @@ final class ContentsNotPrimitiveException extends Exception {
     }
 
     public ContentsNotPrimitiveException() { }
-
-    public void setMessage(String msg){
-        this.msg = msg;
-    }
-
-    public String getMessage(String msg){
-        return this.msg;
-    }
 }
 
 //Throw this exception when Object[][] is not expressed in the correct format needed to be converted into ParsedMap<K, V>
@@ -62,14 +47,6 @@ final class InvalidObjectDoubleArrayToMapFormatException extends Exception {
     public InvalidObjectDoubleArrayToMapFormatException(String msg){ this. msg = msg; }
 
     public InvalidObjectDoubleArrayToMapFormatException() { }
-
-    public void setMessage(String msg){
-        this.msg = msg;
-    }
-
-    public String getMessage(String msg){
-        return this.msg;
-    }
 }
 
 //Throw this exception when String is not expressed in the correct format needed to be converted into ParsedMap<K, V>
@@ -79,14 +56,6 @@ final class InvalidStringToMapFormatException extends Exception {
     public InvalidStringToMapFormatException(String msg) { this.msg = msg; }
 
     public InvalidStringToMapFormatException() { }
-
-    public void setMessage(String msg){
-        this.msg = msg;
-    }
-
-    public String getMessage(String msg){
-        return this.msg;
-    }
 }
 
 //Throw this exception when an int value cannot be 0 or less than 0
@@ -96,14 +65,6 @@ final class ValueLessThanOrEqualsZeroException extends Exception{
     public ValueLessThanOrEqualsZeroException(String msg){ this.msg = msg; }
 
     public ValueLessThanOrEqualsZeroException() { }
-
-    public void setMessage(String msg){
-        this.msg = msg;
-    }
-
-    public String getMessage(String msg){
-        return this.msg;
-    }
 }
 
 final class NoSuchKeyException extends Exception{
@@ -112,14 +73,6 @@ final class NoSuchKeyException extends Exception{
     public NoSuchKeyException(String msg){ this.msg = msg; }
 
     public NoSuchKeyException(){ }
-
-    public void setMessage(String msg){
-        this.msg = msg;
-    }
-
-    public String getMessage(String msg){
-        return this.msg;
-    }
 }
 
 final class IncompatibleTypeException extends Exception {
@@ -132,24 +85,16 @@ final class IncompatibleTypeException extends Exception {
     public IncompatibleTypeException(String msg){
         this.msg = msg;
     }
-
-    public void setMessage(String msg){
-        this.msg = msg;
-    }
-
-    public String getMessage(String msg){
-        return this.msg;
-    }
 }
 
-final class RegexCommandSyntaxError extends Exception {
+final class RegexConditionalCommandSyntaxError extends Exception {
     private String msg;
 
-    public RegexCommandSyntaxError() {
+    public RegexConditionalCommandSyntaxError() {
 
     }
 
-    public RegexCommandSyntaxError(String msg) {
+    public RegexConditionalCommandSyntaxError(String msg) {
         this.msg = msg;
     }
 }
