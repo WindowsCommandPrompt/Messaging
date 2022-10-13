@@ -113,7 +113,38 @@ final class Tools {
                     //Double -> Float
                     //Long -> Integer -> Short -> Byte
                     //String -> Character
-                    throw new IncompatibleTypeException(String.format(entryKeyClass.equals(this.key.getClass()) ? entryValueClass.equals(this.value.getClass()) ? "" : String.format("This parsed map only accepts %s as values but %s was given", (this.value instanceof String ? "String" : this.value instanceof Integer ? "Integer" : this.value instanceof Character ? "Character" : this.value instanceof Double ? "Double" : ""), (e.key instanceof String ? "String" : e.key instanceof Integer ? "Integer" : "")) : "This parsed map only accepts %s as key, but %s was given as one of its entries, so there is a datatype conflict", (this.key instanceof String ? "String" : this.key instanceof Integer ? "Integer" : this.key instanceof Character ? "Character" : this.key instanceof Double ? "Double" : "")));
+                    throw new IncompatibleTypeException(
+                        String.format(
+                            entryKeyClass.equals(this.key.getClass())
+                                ? entryValueClass.equals(this.value.getClass())
+                                    ? ""
+                                    : String.format(
+                                            "This parsed map only accepts %s as values but %s was given",
+                                            (this.value instanceof String
+                                                ? "String"
+                                                : this.value instanceof Integer
+                                                    ? "Integer"
+                                                    : this.value instanceof Character
+                                                        ? "Character"
+                                                        : this.value instanceof Double
+                                                            ? "Double"
+                                                            : ""),
+                                            (e.key instanceof String
+                                                ? "String"
+                                                : e.key instanceof Integer
+                                                    ? "Integer"
+                                                    : ""))
+                                : "This parsed map only accepts %s as key, but %s was given as one of its entries, so there is a datatype conflict",
+                                    (this.key instanceof String
+                                        ? "String"
+                                        : this.key instanceof Integer
+                                            ? "Integer"
+                                            : this.key instanceof Character
+                                                ? "Character"
+                                                : this.key instanceof Double
+                                                    ? "Double"
+                                                    : ""))
+                    );
                 }
                 //continue looping through the list of entry objects if required, otherwise throw an exception when the loop finishes
             }
@@ -1033,7 +1064,7 @@ final class Tools {
             return a;
         }
 
-        //This class shall be declared as private LOL
+        //This class shall not be declared as private LOL
         public final class Determinant{
             private Object target;
 
@@ -1055,7 +1086,23 @@ final class Tools {
                 return (String) this.target;
             }
 
-            public boolean hasNext(){
+            public Highlight advance(int steps) {
+                if (this.target instanceof String[]){
+                    String[] translate = (String[]) this.target;
+                    //index 0: sample
+                    //index 1: anchoringPoint
+                    for (String s : translate){
+
+                    }
+                }
+            }
+        }
+
+        public static final class Highlight{
+            private int start;
+            private int end;
+
+            public Highlight(int current, int s){
 
             }
         }
@@ -1088,9 +1135,10 @@ final class Tools {
         public <T> T setAnchorAt(char target){
             char[] charArray = this.str.toCharArray();
             if (charArray[0] == target){
-                return (T) new Determinant(new String(charArray));
+                return (T) new Determinant(new String[]{ new String(charArray), Character.toString(target) });
             }
             Log.i("TARGETNOTFOUND", "Required target character was not found. Throwing error message from Tools.StringAddOn.setAnchorAt()");
+            return (T) new Determinant(); //call null constructor first.
         }
 
         public String[] splitWithRegexConditions(String command) throws RegexConditionalCommandSyntaxError{
