@@ -87,6 +87,7 @@ final class IncompatibleTypeException extends Exception {
     }
 }
 
+//Throw this exception when there is a syntax error within the conditional regex statement
 final class RegexConditionalCommandSyntaxError extends Exception {
     private String msg;
 
@@ -97,4 +98,15 @@ final class RegexConditionalCommandSyntaxError extends Exception {
     public RegexConditionalCommandSyntaxError(String msg) {
         this.msg = msg;
     }
+}
+
+//Throw this exception when the required target is not of type "String"
+final class NotAStringException extends Exception {
+    private String msg;
+
+    public NotAStringException(){
+
+    }
+
+    public NotAStringException(String msg){ this.msg = msg; }
 }

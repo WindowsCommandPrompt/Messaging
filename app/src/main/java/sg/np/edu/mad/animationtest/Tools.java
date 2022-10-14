@@ -1076,72 +1076,164 @@ final class Tools {
 
             }
 
-            public <T> boolean is(final T retrieval) {
-                return (
-                    retrieval.getClass().isPrimitive() && this.target.getClass().isPrimitive() ? retrieval == this.target : retrieval.equals(this.target)
-                );
+            public boolean is(final char retrieval) {
+                return (((String[]) this.target)[0]).charAt(Integer.parseInt(((String[]) this.target)[1])) == retrieval;
             }
+
+            public <T> T getItem(){
+                return (T) this.target;
+            }
+
+            public <T extends String> void remove(T segment) throws NotAStringException {
+                if (this.target instanceof String){
+
+                } else {
+
+                }
+            }
+
+            //return highlight object and prepare to highlight a section of the string.
+            //advance can only be called when this.target is of
+            public Highlight advance(int steps) throws StringIndexOutOfBoundsException, NotAStringException {
+                if (this.target instanceof String[]){
+                    //index 0: sample (full string)
+                    //index 1: anchoringPoint (a single point within a sample string)
+                    String sample = ((String[]) this.target)[0];
+                    String anchoringPoint = ((String[]) this.target)[1];
+                    BiFunction<Integer, String, String> concatenator = (stepsFromParameter, stringSample) -> {
+                        String result = "";
+                        //anchoringPoint is a string, which represents the target
+                        int tempIndex = Integer.parseInt(((String[]) this.target)[2]); //location of the target in the sample
+                        int end = tempIndex + steps; //ending index position
+                        if (end <= sample.length() - 1) {
+                            do {
+                                result += stringSample.charAt(tempIndex);
+                                tempIndex++;
+                            }
+                            while (tempIndex <= end);
+                            return result; //returns the affected string
+                        } else {
+                            throw new StringIndexOutOfBoundsException(String.format("Given string length: %d\nGreatest character index possible: %d\nAnchored character index: %d\nIndex of expected element at the end of slicing: %d", anchoringPoint.length(), anchoringPoint.length() - 1, tempIndex, end));
+                        }
+                    };
+                    return new Highlight(concatenator.apply(steps, sample));
+                } else {
+                    throw new NotAStringException(String.format("This method can only be used if 'this.target' is of type 'String[]' not ", this.target.getClass()));
+                }
+            }
+
+
+        }
+
+        public final class Highlight{
+            private String slicedString;
+
+            public Highlight(String s){
+                this.slicedString = slicedString;
+            }
+
+            //what are you going to do with the sliced string segment?
 
             public String getString(){
-                return (String) this.target;
+                return this.slicedString;
             }
 
-            public Highlight advance(int steps) {
-                if (this.target instanceof String[]){
-                    String[] translate = (String[]) this.target;
-                    //index 0: sample
-                    //index 1: anchoringPoint
-                    for (String s : translate){
-
+            //Removes highlighted text from the String.
+            public Highlight remove(char target) throws ContentsNotPrimitiveException, NotAnArrayException {
+                String[] result = new String[this.slicedString.length()];
+                for (int i = 0; i < this.slicedString.length(); ++i){
+                    result[i] = Character.toString(this.slicedString.charAt(i));
+                }
+                for (int i = 0; i < result.length; ++i){
+                    if (result[i].equals(Character.toString(target))){
+                        result[i] = "";
                     }
                 }
+                String output = ""; int i = 0;
+                do {
+                    output += result[i];
+                }
+                while (i < result.length);
+                return new Highlight(output);
             }
         }
 
-        public static final class Highlight{
-            private int start;
-            private int end;
+        //StringAddOn.format("{:@[2]}s{>12:@[1]}", 12, "string") => "strings\t\t\t\t\t\t\t\t\t\t\t\t12" => "strings                                             12"
+        //Wrong syntax will result in the string not rendered correctly, no exception will be thrown
+        public static String format(String representation, Object ...args){
 
-            public Highlight(int current, int s){
-
-            }
         }
 
         // "String" => [s][t][r][i][n][g] => apply after('r') => returns Determinant => apply is() => returns a boolean value
-        public Determinant after(char target) throws ContentsNotPrimitiveException, NotAnArrayException {
-            char[] charArray = this.str.toCharArray();
+        public Determinant after(char target, int indexAt) throws ContentsNotPrimitiveException, NotAnArrayException {
+            char[] charArray = this.str.toCharArray(); int occurrences = 0;
             for (char c : charArray){
                 if (c == target){
-                    return new Determinant(charArray[ArrayUtilsCustom.findIndexOfElement(c).in(Converter.ReferenceTypeConverter.simplifiedToComplexArray(charArray)) + 1]);
+                    occurrences++;
                 }
             }
-            Log.i("TARGETNOTFOUND", "Required target character was not found. \n This warning message has been raised from the following method: Tools.StringAddOn.after()");
-            //return unparameterized constructor instead of null
-            return new Determinant();
+            int[] indexRecords = new int[occurrences + 1];
+            for (int i = 0; i < charArray.length; ++i){
+                if (charArray[i] == target){
+                    indexRecords[i] = i;
+                }
+            }
+            if (indexAt > occurrences) {
+                return new Determinant(new String[]{ new String(charArray), Integer.toString(indexRecords[indexAt] + 1) });
+            } else {
+                Log.i("TARGETNOTFOUND", "Required target character was not found. \n This warning message has been raised from the following method: Tools.StringAddOn.after()");
+                //return unparameterized constructor instead of null
+                return new Determinant();
+            }
         }
 
-        public Determinant before(char target) throws ContentsNotPrimitiveException, NotAnArrayException {
-            char[] charArray = this.str.toCharArray();
+        public Determinant before(char target, int indexAt) throws ContentsNotPrimitiveException, NotAnArrayException {
+            char[] charArray = this.str.toCharArray(); int occurrences = 0;
             for (char c : charArray){
                 if (c == target){
-                    return new Determinant(charArray[ArrayUtilsCustom.findIndexOfElement(c).in(Converter.ReferenceTypeConverter.simplifiedToComplexArray(charArray)) - 1]);
+                    occurrences++;
                 }
             }
-            Log.i("TARGETNOTFOUND", "Required target character was not found. Throwing error message from Tools.StringAddOn.before()");
-            return new Determinant();
+            int[] indexRecords = new int[occurrences + 1];
+            for (int i = 0; i < charArray.length; ++i){
+                if (charArray[i] == target){
+                    indexRecords[i] = i;
+                }
+            }
+            if (indexAt > occurrences) {
+                return new Determinant(new String[]{ new String(charArray), Integer.toString(indexRecords[indexAt] - 1) });
+            } else {
+                Log.i("TARGETNOTFOUND", "Required target character was not found. \n This warning message has been raised from the following method: Tools.StringAddOn.before()");
+                //return unparameterized constructor instead of null
+                return new Determinant();
+            }
         }
 
         @SuppressWarnings("unchecked")
-        public <T> T setAnchorAt(char target){
-            char[] charArray = this.str.toCharArray();
-            if (charArray[0] == target){
-                return (T) new Determinant(new String[]{ new String(charArray), Character.toString(target) });
+        //target: the character that you are looking for within a string
+        //occurrence: and what time did that target occur within the string (first occurrence use 0, and so on)
+        public Determinant setAnchorAt(char target, int atIndex){
+            char[] charArray = this.str.toCharArray(); int occurrence = 0; // -> number of times that 'target' has occurred within a particular string
+            for (int i = 0; i < charArray.length; ++i) {
+                if (charArray[i] == target) { //finds a match
+                    occurrence++; //add 1 to the counter
+                }
             }
-            Log.i("TARGETNOTFOUND", "Required target character was not found. Throwing error message from Tools.StringAddOn.setAnchorAt()");
-            return (T) new Determinant(); //call null constructor first.
+            if (atIndex > occurrence) {
+                Log.i("TARGETNOTFOUND", "Required target character was not found. Throwing error message from Tools.StringAddOn.setAnchorAt()");
+                return new Determinant(); //call null constructor first.
+            } else {
+                int[] result = new int[occurrence + 1];
+                for (int i = 0; i < charArray.length; ++i){
+                    if (charArray[i] == target){
+                        result[i] = i;
+                    }
+                }
+                return new Determinant(new String[]{new String(charArray), Character.toString(target), Integer.toString(result[atIndex]) });
+            }
         }
 
-        public String[] splitWithRegexConditions(String command) throws RegexConditionalCommandSyntaxError{
+        public String[] splitWithRegexConditions(String command) throws RegexConditionalCommandSyntaxError, NotAStringException, ContentsNotPrimitiveException, NotAnArrayException {
             /*
                 Command syntax:
 
@@ -1164,12 +1256,32 @@ final class Tools {
             for (int i = 0; i < basicTokenizing.length; ++i){
                 if (!(new ArrayUtilsCustom.ArraysExt<String>(basicTokenizing).startsWith("@regexDivision{"))){
                     //did not start with "@"
-                    if (!basicTokenizing[0].startsWith("@")){
-                        errorList.add(new RegexConditionalCommandSyntaxError("E1b: Expected '@' in front of RegexDivision"));
+                    if (basicTokenizing[0].startsWith("@")){
+                        int steps = 1; int pointerIndexInReference = 0;
+                        char[] reference = "regexDivision".toCharArray();
+                        for (; ; ) {
+                            if (pointerIndexInReference < reference.length){
+                                if (!(new StringAddOn(command).setAnchorAt('@', 0).advance(steps).getString().charAt(new StringAddOn(command).setAnchorAt('@').advance(steps).getString().length() - 1) == reference[pointerIndexInReference])) {
+                                    //get unmatched character and add to error list
+                                    errorList.add(new RegexConditionalCommandSyntaxError(String.format("E1b: Unknown method, or declaration '%s'." + (pointerIndexInReference == 5 && new StringAddOn(command).setAnchorAt('@').advance(steps).getString().charAt(new StringAddOn(command).setAnchorAt('@').advance(steps).getString().length() - 1) == 'd' ? "\nDo you mean @regexDivision?" : ""), new StringAddOn(command).setAnchorAt('@').advance(steps).getString())));
+                                }
+                                ++steps;
+                                ++pointerIndexInReference;
+                            } else {
+                                break;
+                            }
+                        }
+                        //Till this point the string should have at least "@regexDivision" inside
+                        if (new StringAddOn(command).after('x', 0).is('{')) {
+                            //Till this point the string should have at least @regexDivision{
+
+                        } else {
+                            errorList.add(new RegexConditionalCommandSyntaxError("E2: '{' expected after of statement"));
+                        }
                     }
                     else {
-                        //check character after '@'.
-                            errorList.add(new RegexConditionalCommandSyntaxError("E1: '{' expected at the start of statement"));
+                        //add error
+                        errorList.add(new RegexConditionalCommandSyntaxError("E1a: Expected '@' at the start of every regex-co statement."));
                     }
                 }
 
