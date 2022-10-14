@@ -1201,6 +1201,7 @@ final class Tools {
                 }
             }
             if (indexAt > occurrences) {
+                //return index before target char index at n-th occurrences (indexAt)
                 return new Determinant(new String[]{ new String(charArray), Integer.toString(indexRecords[indexAt] - 1) });
             } else {
                 Log.i("TARGETNOTFOUND", "Required target character was not found. \n This warning message has been raised from the following method: Tools.StringAddOn.before()");
@@ -1253,41 +1254,39 @@ final class Tools {
              */
             String[] basicTokenizing = command.split(" ");
             ArrayList<RegexConditionalCommandSyntaxError> errorList = new ArrayList<>();
-            for (int i = 0; i < basicTokenizing.length; ++i){
-                if (!(new ArrayUtilsCustom.ArraysExt<String>(basicTokenizing).startsWith("@regexDivision{"))){
-                    //did not start with "@"
-                    if (basicTokenizing[0].startsWith("@")){
-                        int steps = 1; int pointerIndexInReference = 0;
-                        char[] reference = "regexDivision".toCharArray();
-                        for (; ; ) {
-                            if (pointerIndexInReference < reference.length){
-                                if (!(new StringAddOn(command).setAnchorAt('@', 0).advance(steps).getString().charAt(new StringAddOn(command).setAnchorAt('@').advance(steps).getString().length() - 1) == reference[pointerIndexInReference])) {
-                                    //get unmatched character and add to error list
-                                    errorList.add(new RegexConditionalCommandSyntaxError(String.format("E1b: Unknown method, or declaration '%s'." + (pointerIndexInReference == 5 && new StringAddOn(command).setAnchorAt('@').advance(steps).getString().charAt(new StringAddOn(command).setAnchorAt('@').advance(steps).getString().length() - 1) == 'd' ? "\nDo you mean @regexDivision?" : ""), new StringAddOn(command).setAnchorAt('@').advance(steps).getString())));
-                                }
-                                ++steps;
-                                ++pointerIndexInReference;
-                            } else {
-                                break;
+            if (!(new ArrayUtilsCustom.ArraysExt<String>(basicTokenizing).startsWith("@regexDivision{"))){
+                //did not start with "@"
+                if (basicTokenizing[0].startsWith("@")){
+                    int steps = 1; int pointerIndexInReference = 0;
+                    char[] reference = "regexDivision".toCharArray();
+                    for (; ; ) {
+                        if (pointerIndexInReference < reference.length){
+                            if (!(new StringAddOn(command).setAnchorAt('@', 0).advance(steps).getString().charAt(new StringAddOn(command).setAnchorAt('@', 0).advance(steps).getString().length() - 1) == reference[pointerIndexInReference])) {
+                                //get unmatched character and add to error list
+                                errorList.add(new RegexConditionalCommandSyntaxError(String.format("E1b: Unknown method, or declaration '%s'." + (pointerIndexInReference == 5 && new StringAddOn(command).setAnchorAt('@', 0).advance(steps).getString().charAt(new StringAddOn(command).setAnchorAt('@', 0).advance(steps).getString().length() - 1) == 'd' ? "\nDo you mean @regexDivision?" : ""), new StringAddOn(command).setAnchorAt('@', 0).advance(steps).getString())));
                             }
-                        }
-                        //Till this point the string should have at least "@regexDivision" inside
-                        if (new StringAddOn(command).after('x', 0).is('{')) {
-                            //Till this point the string should have at least @regexDivision{
-
+                            ++steps;
+                            ++pointerIndexInReference;
                         } else {
-                            errorList.add(new RegexConditionalCommandSyntaxError("E2: '{' expected after of statement"));
+                            break;
                         }
                     }
-                    else {
-                        //add error
-                        errorList.add(new RegexConditionalCommandSyntaxError("E1a: Expected '@' at the start of every regex-co statement."));
-                    }
-                }
+                    //Till this point the string should have at least "@regexDivision" inside
+                    if (new StringAddOn(command).after('x', 0).is('{')) {
+                        //Till this point the string should have at least @regexDivision{
+                        char[][] referenceCharArray = new char[][] { "sandwiched".toCharArray(), "declareArray".toCharArray() };
 
-                if (!(new ArrayUtilsCustom.ArraysExt<String>(basicTokenizing).endsWith("}"))){
-                    errorList.add(new RegexConditionalCommandSyntaxError("E9: '}' expected at the end of the regex-co statement"));
+                    } else {
+                        errorList.add(new RegexConditionalCommandSyntaxError("E2: '{' expected over here"));
+                    }
+                } else {
+                    //add error
+                    errorList.add(new RegexConditionalCommandSyntaxError("E1a: Expected '@' at the start of every regex-co statement."));
                 }
+            }
+
+            if (!(new ArrayUtilsCustom.ArraysExt<String>(basicTokenizing).endsWith("}"))){
+                errorList.add(new RegexConditionalCommandSyntaxError("E9: '}' expected at the end of the regex-co statement"));
             }
         }
     }
