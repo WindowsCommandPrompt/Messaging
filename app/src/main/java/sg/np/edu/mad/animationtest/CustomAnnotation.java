@@ -79,10 +79,3 @@ class CharacterCategory {
 @interface ElasticFunctionParameters {
     ParameterTypes[] value();
 }
-
-
-
-
-
-
-
