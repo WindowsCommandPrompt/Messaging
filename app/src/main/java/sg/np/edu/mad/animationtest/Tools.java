@@ -1184,6 +1184,7 @@ final class Tools {
             int steps = 1;
             String translate = "";
             int targetCharIndex = 0;
+            String rawTemplateString = "";
             //length of formatterStarter must be equivalent to the length of formatterEnder
             for (int i = 0; i < formatterStarter.length; ++i) { //looping through the index positions of
                 //what if StringAddOn.format("{:[2]}{{>12:[1]}", 12, "string")  ?? ?
@@ -1196,7 +1197,7 @@ final class Tools {
                             if (Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9').contains(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().length() - 1))) {
                                 translate = new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString(); //re-assign to a new string (number of tabs needed to be added expressed in the form of a string)
                             } else {
-                                throw new InvalidStringFormatPlaceholderException(String.format("E11: Integer (number) expected after ':' symbol, but %s was given, which is not a string", new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString()));
+                                throw new InvalidStringFormatPlaceholderException(String.format("E11: Integer (number) expected after %s symbol, but %s was given, which is not an integer.", , new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString()));
                             }
                             steps++; //advance
                         } else {
@@ -1208,35 +1209,84 @@ final class Tools {
                     //variable 'steps' still remains uninitialized, steps still pointing towards ":"
                     //syntax check: after the ':' symbol, there should be the '[' symbol
                     String numAsString = "";
-                    for (; ; ){
-                        if (!(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().length() - 1) == ']')){ //end of the format syntax
-                            if (new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().length() - 1) == '['){ //start of square bracket
-                                numAsString = new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString(); //assign contents between '[' and ']'
+                    steps = 1;
+                    //set anchor at the ":" symbol and find the symbol next to it (to the right)
+                    if (new StringAddOn(representation).setAnchorAt(':', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt(':', formatterStarter[i]).advance(steps).getString().length() - 1) == '[') { //start of square bracket
+                        steps++; //advance to next symbol after '[', checking for number
+                        for (; ; ) {
+                            steps++;
+                            if (!(new StringAddOn(representation).setAnchorAt(':', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt(':', formatterStarter[i]).advance(steps).getString().length() - 1) == ']')) { //end of the format syntax
+                                if (Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9').contains(new StringAddOn(representation).setAnchorAt(':', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt(':', formatterStarter[i]).advance(steps).getString().length() - 1))) {
+                                    numAsString = new StringAddOn(representation).setAnchorAt(':', formatterStarter[i]).advance(steps).getString();
+                                } else {
+                                    throw new InvalidStringFormatPlaceholderException(String.format("E11: Integer(number) expected after '[' symbol, but '%s' was given, which is not an integer.", new StringAddOn(representation).setAnchorAt(':', formatterStarter[i]).advance(steps).getString()));
+                                }
                             } else {
-                                throw new InvalidStringFormatPlaceholderException("E1: Integer expected after ':'");
+                                break;
                             }
-                            //find '[' character
-                            steps++; //continue advancing if '[' or ']' not found
-                        } else {
-                            break; //break from infinite loop when ']' is found
                         }
+                    } else {
+                        throw new InvalidStringFormatPlaceholderException("E12: '[' expected after ':'");
                     }
                     storeParam[i] = Integer.parseInt(numAsString);
-                    //Check if character after ']' for '}', and variable 'steps' still remains uninitialized
+                    //Check if character after ']' for '}', initialize 'steps'
                     steps = 1;
-                    for (; ; ) {
-                        if (!(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().length() - 1) == '}')){
-                            steps++;
-                        } else {
-                            break;
-                        }
+                    if ((new StringAddOn(representation).setAnchorAt(']', formatterStarter[i]).advance(steps).getString().charAt(0) != '}')) {
+                        throw new InvalidStringFormatPlaceholderException("E13: '}' expected after ']'");
                     }
+                    rawTemplateString += "!!"; //Temporary placeholder
                     //what if StringAddOn.format("{:[2]}}{>12:[1]}", 12, "string") ???
                 } else if (new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().equals("<")) {
-                    //This
-
+                    //logic should be the same as what was written in the 'if' block
+                    steps++;
+                    for (; ; ) {
+                        if (!(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().length() - 1) == ':')) {
+                            //Character after '>' or '<' must be of a digit that is expressed in the form of a string
+                            if (Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9').contains(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().length() - 1))) {
+                                translate = new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString(); //re-assign to a new string (number of tabs needed to be added expressed in the form of a string)
+                            } else {
+                                throw new InvalidStringFormatPlaceholderException(String.format("E11: Integer (number) expected after %s symbol, but %s was given, which is not an integer.", , new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString()));
+                            }
+                            steps++; //advance
+                        } else {
+                            break; //if symbol is a ":", break for now
+                        }
+                    }
+                    numOfTabsNeededPerFormat[i] = translate.length() > 0 ? Integer.parseInt(translate) : 0; //record down the number of tabs that needs to be inserted
+                    direction[i] = translate.length() > 0 ? "Left" : "Skip"; //to the right or to the left?
+                    //variable 'steps' still remains uninitialized, steps still pointing towards ":"
+                    //syntax check: after the ':' symbol, there should be the '[' symbol
+                    String numAsString = "";
+                    steps = 1;
+                    //set anchor at the ":" symbol and find the symbol next to it (to the right)
+                    if (new StringAddOn(representation).setAnchorAt(':', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt(':', formatterStarter[i]).advance(steps).getString().length() - 1) == '[') { //start of square bracket
+                        steps++; //advance to next symbol after '[', checking for number
+                        for (; ; ) {
+                            steps++;
+                            if (!(new StringAddOn(representation).setAnchorAt(':', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt(':', formatterStarter[i]).advance(steps).getString().length() - 1) == ']')) { //end of the format syntax
+                                if (Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9').contains(new StringAddOn(representation).setAnchorAt(':', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt(':', formatterStarter[i]).advance(steps).getString().length() - 1))) {
+                                    numAsString = new StringAddOn(representation).setAnchorAt(':', formatterStarter[i]).advance(steps).getString();
+                                } else {
+                                    throw new InvalidStringFormatPlaceholderException(String.format("E11: Integer(number) expected after '[' symbol, but '%s' was given, which is not an integer.", new StringAddOn(representation).setAnchorAt(':', formatterStarter[i]).advance(steps).getString()));
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    } else {
+                        throw new InvalidStringFormatPlaceholderException("E12: '[' expected after ':'");
+                    }
+                    storeParam[i] = Integer.parseInt(numAsString);
+                    //Check if character after ']' for '}', initialize 'steps'
+                    steps = 1;
+                    if ((new StringAddOn(representation).setAnchorAt(']', formatterStarter[i]).advance(steps).getString().charAt(0) != '}')) {
+                        throw new InvalidStringFormatPlaceholderException("E13: '}' expected after ']'");
+                    }
+                    rawTemplateString += "!!"; //Temporary placeholder
                 } else if (new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().equals(":")) {
+                    for (; ; ){
 
+                    }
                 } else {
                     //'{' is treated as a normal string
                 }
