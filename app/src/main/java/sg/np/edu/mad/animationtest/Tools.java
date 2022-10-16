@@ -900,6 +900,7 @@ final class Tools {
 
         }
 
+        //good for single dimensional array
         public static <T> boolean containsElement(@NonNull T target, @NonNull T[] sample) throws NotAnArrayException, ContentsNotPrimitiveException{
             if (!sample.getClass().isArray()) {
                 //its not an array
@@ -921,8 +922,77 @@ final class Tools {
         }
 
         //only for single dimensional array
-        public static <T> String toString(@NonNull T[] target){
+        @SuppressWarnings("unchecked")
+        public static <N_DimensionalArray> String toString(@NonNull N_DimensionalArray target){
+            String representable = "@Array";
+            char[] detector = target.getClass().toString().toCharArray();
+            int dimension = 0;
+            for (char c : detector) {
+                if (c == '[') {
+                    dimension++;
+                }
+            }
+            if (dimension == 1) {
+                if (target instanceof char[]){
+                    char[] translate = (char[]) target;
+                    representable += "|char|[";
+                    for (int i = 0; i < translate.length; ++i){
+                        representable += (translate[i] + (i == translate.length - 1 ? ", " : "]"));
+                    }
+                    return representable;
+                } else if (target instanceof int[]){
+                    int[] translate = (int[]) target;
+                    representable += "|int|[";
+                    for (int i = 0; i < translate.length; ++i){
+                        representable += (translate[i] + (i == translate.length - 1 ? ", " : "]"));
+                    }
+                    return representable;
+                } else if (target instanceof double[]){
+                    double[] translate = (double[]) target;
+                    representable += "|double|[";
+                    for (int i = 0; i < translate.length; ++i){
+                        representable += (translate[i] + (i == translate.length - 1 ? ", " : "]"));
+                    }
+                    return representable;
+                } else if (target instanceof boolean[]){
+                    boolean[] translate = (boolean[]) target;
+                    representable += "|boolean|[";
+                    for (int i = 0; i < translate.length; ++i){
+                        representable += (translate[i] + (i == translate.length - 1 ? ", " : "]"));
+                    }
+                    return representable;
+                } else if (target instanceof float[]) {
+                    float[] translate = (float[]) target;
+                    representable += "|float|[";
+                    for (int i = 0; i < translate.length; ++i){
+                        representable += (translate[i] + (i == translate.length - 1 ? ", " : "]"));
+                    }
+                    return representable;
+                } else if (target instanceof byte[]) {
+                    byte[] translate = (byte[]) target;
+                    representable += "|byte|[";
+                    for (int i = 0; i < translate.length; ++i){
+                        representable += (translate[i] + (i == translate.length - 1 ? ", " : "]"));
+                    }
+                    return representable;
+                } else if (target instanceof short[]) {
+                    short[] translate = (short[]) target;
+                    representable += "|short|[";
+                    for (int i = 0; i < translate.length; ++i){
+                        representable += (translate[i] + (i == translate.length - 1 ? ", " : "]"));
+                    }
+                    return representable;
+                } else if (target instanceof long[]) {
+                    long[] translate = (long[]) target;
+                    representable += "|long|[";
+                    for (int i = 0; i < translate.length; ++i){
+                        representable += (translate[i] + (i == translate.length - 1 ? ", " : "]"));
+                    }
+                    return representable;
+                }
+            } else { //if the dimension is greater than 0
 
+            }
         }
 
         public static class InternalArrayStorageSearchMultiple{
@@ -1102,34 +1172,74 @@ final class Tools {
             return a;
         }
 
-        //StringAddOn.format("{:@[2]}s{>12:@[1]}", 12, "string") => "strings\t\t\t\t\t\t\t\t\t\t\t\t12" => "strings                                             12"
+        //StringAddOn.format("{:[2]}s{>12:[1]}", 12, "string") => "strings\t\t\t\t\t\t\t\t\t\t\t\t12" => "strings                                             12"
         //Wrong syntax will result in the string not rendered correctly, no exception will be thrown
         public String format(String representation, Object ...args) throws NotAStringException {
             int[] formatterStarter = selectAllIndexOf('{');
+            int[] formatterEnder = selectAllIndexOf('}');
+            int[] divider = selectAllIndexOf(':');
+            int[] numOfTabsNeededPerFormat = new int[formatterStarter.length]; //number of tabs required
+            String[] direction = new String[formatterStarter.length]; //add tabs to the right or left???
+            int[] storeParam = new int[formatterStarter.length];
             char[] representationAsArray = representation.toCharArray();
-            HashMap<String, Integer> numOfTabsRecorder = new HashMap<>();
             int steps = 1;
             String translate = "";
             int targetCharIndex = 0;
-            for (int i = 0; i < formatterStarter.length; ++i) {
+            //length of formatterStarter must be equivalent to the length of formatterEnder
+            for (int i = 0; i < formatterStarter.length; ++i) { //looping through the index positions of
+                //what if StringAddOn.format("{:[2]}{{>12:[1]}", 12, "string")  ?? ?
+                //character after '{' can only be ':' or '>' or '<', if not it will just be passed as a string (shown in the 'else' clause)
                 if (new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().equals(">")) {
                     steps++;
                     for (; ; ) {
                         if (!(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().length() - 1) == ':')) {
-                            translate = new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString(); //re-assign to a new string
+                            //Character after '>' or '<' must be of a digit that is expressed in the form of a string
+                            if (Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9').contains(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().length() - 1))) {
+                                translate = new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString(); //re-assign to a new string (number of tabs needed to be added expressed in the form of a string)
+                            } else {
+                                Log.w("INVALIDSTRINGFORMATPLACEMENTSYNTAX", "E1: The ");
+                            }
+                            steps++; //advance
+                        } else {
+                            break; //if symbol is a ":", break for now
+                        }
+                    }
+                    numOfTabsNeededPerFormat[i] = translate.length() > 0 ? Integer.parseInt(translate) : 0; //record down the number of tabs that needs to be inserted
+                    direction[i] = translate.length() > 0 ? "Right" : "Skip"; //to the right or to the left?
+                    //variable 'steps' still remains uninitialized, steps still pointing towards ":"
+                    //syntax check: after the ':' symbol, there should be the '[' symbol
+                    String numAsString = "";
+                    for (; ; ){
+                        if (!(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().length() - 1) == ']')){ //end of the format syntax
+                            if (new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().length() - 1) == '['){ //start of square bracket
+                                numAsString = new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString(); //assign contents between '[' and ']'
+                            } else {
+                                Log.w("INVALIDSTRINGFORMATPLACEMENTSYNTAX", "");
+                            }
+                            //find '[' character
+                            steps++; //continue advancing if '[' or ']' not found
+                        } else {
+                            break; //break from infinite loop when ']' is found
+                        }
+                    }
+                    storeParam[i] = Integer.parseInt(numAsString);
+                    //Check if character after ']' for '}', and variable 'steps' still remains uninitialized
+                    steps = 1;
+                    for (; ; ) {
+                        if (!(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().length() - 1) == '}')){
                             steps++;
                         } else {
                             break;
                         }
                     }
-
-                    numOfTabsRecorder.put("Right", Integer.parseInt(translate));
-
+                    //what if StringAddOn.format("{:[2]}}{>12:[1]}", 12, "string") ???
                 } else if (new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().equals("<")) {
                     //This
 
                 } else if (new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().equals(":")) {
 
+                } else {
+                    //'{' is treated as a normal string
                 }
             }
         }
