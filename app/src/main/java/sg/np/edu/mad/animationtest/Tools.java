@@ -1061,6 +1061,8 @@ final class Tools {
                 return checker.get() ? a.apply(charArr.length) : warn.get();
             }
 
+
+
             //find index of something, but the array can now accept primitive data types, reference types use the previous method.
             public <PrimitiveArray> int inPrimit(@NonNull PrimitiveArray array){
                 Supplier<Boolean> checker = () -> {
@@ -1174,12 +1176,10 @@ final class Tools {
         //StringAddOn.format("{:[2]}s{>12:[1]}", 12, "string") => "strings\t\t\t\t\t\t\t\t\t\t\t\t12" => "strings                                             12"
         //Wrong syntax will result in the string not rendered correctly, no exception will be thrown
         public String format(String representation, Object ...args) throws NotAStringException, InvalidStringFormatPlaceholderException {
-            int[] formatterStarter = selectAllIndexOf('{');
-            int[] formatterEnder = selectAllIndexOf('}');
-            int[] divider = selectAllIndexOf(':');
+            int[] formatterStarter = new StringAddOn(representation).selectAllIndexOf('{');
             int[] numOfTabsNeededPerFormat = new int[formatterStarter.length]; //number of tabs required
             String[] direction = new String[formatterStarter.length]; //add tabs to the right or left???
-            int[] storeParam = new int[formatterStarter.length];
+            int[] storeParam = new int[formatterStarter.length]; //which value should go into the placeholder from the args
             char[] representationAsArray = representation.toCharArray();
             int steps = 1;
             String translate = "";
@@ -1234,7 +1234,7 @@ final class Tools {
                     if ((new StringAddOn(representation).setAnchorAt(']', formatterStarter[i]).advance(steps).getString().charAt(0) != '}')) {
                         throw new InvalidStringFormatPlaceholderException("E13: '}' expected after ']'");
                     }
-                    rawTemplateString += "!!"; //Temporary placeholder
+                    rawTemplateString += "!!@Placeholder!!"; //Temporary placeholder
                     //what if StringAddOn.format("{:[2]}}{>12:[1]}", 12, "string") ???
                 } else if (new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().equals("<")) {
                     //logic should be the same as what was written in the 'if' block
@@ -1282,15 +1282,43 @@ final class Tools {
                     if ((new StringAddOn(representation).setAnchorAt(']', formatterStarter[i]).advance(steps).getString().charAt(0) != '}')) {
                         throw new InvalidStringFormatPlaceholderException("E13: '}' expected after ']'");
                     }
-                    rawTemplateString += "!!"; //Temporary placeholder
+                    rawTemplateString += "!!@Placeholder!!"; //Temporary placeholder
                 } else if (new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().equals(":")) {
                     for (; ; ){
 
                     }
                 } else {
                     //'{' is treated as a normal string
+
                 }
             }
+            //String processing, we will need to return the whole entire string afterwards.
+            String[] indexing = rawTemplateString.split(" ");
+            int[] allPlaceholders = new StringAddOn(representation).selectAllIndexOfString("!!@Placeholder!!");
+            for (int i = 0; i < indexing.length; ++i){
+                if (indexing[i].equals("!!@Placeholder!!")){
+
+                } else {
+
+                }
+            }
+        }
+
+        public int[] selectAllIndexOfString(String target){
+            int occurrences = 0;
+            String[] source = this.str.split(" "); //get individual words from a string, split string by a single whitespace
+            for (String s : source){
+                if (s.equals(target)){
+                    occurrences++;
+                }
+            }
+            int[] indexRecords = new int[occurrences];
+            for (int i = 0; i < indexRecords.length; ++i){
+                if (source[i].equals(target)){
+                    indexRecords[i] = i;
+                }
+            }
+            return indexRecords;
         }
 
         public int[] selectAllIndexOf(char target){
