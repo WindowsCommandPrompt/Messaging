@@ -2,6 +2,7 @@ package sg.np.edu.mad.animationtest;
 
 import androidx.annotation.NonNull;
 
+import java.sql.Array;
 import java.util.*;
 import java.util.function.*;
 
@@ -768,6 +769,7 @@ final class Tools {
         // char[], int[], long[], byte[], boolean[] accepted
         //boolean[] -> Boolean[] { null, null, null }
         //inform the user if a single dimensional array has been passed as part of the parameter
+        @SuppressWarnings("unchecked")
         public static <N_DimensionalArray> N_DimensionalArray initialize(@NonNull N_DimensionalArray target, @AcceptStrings(permittedStrings = {"Primitive", "Reference", "primitive", "reference"}, defaultValueIfInvalid = "Reference") String result) throws NotAnArrayException, NoSuchMethodException, ContentsNotPrimitiveException {
             String[] allowedParameters = ((AcceptStrings) ArrayUtilsCustom.class.getMethod("initialize", String.class).getParameterAnnotations()[0][0]).permittedStrings();
             String defaultValueIfInvalid = ((AcceptStrings) ArrayUtilsCustom.class.getMethod("initialize", String.class).getParameterAnnotations()[0][0]).defaultValueIfInvalid();
@@ -786,39 +788,63 @@ final class Tools {
                     if (dimension == 1) {  //for Object[]
                         if (target.equals("primitive") || target.equals("Primitive")) {
                             //convert target into, a processable array
-                            if (target instanceof char[] || target instanceof Character[]) {
+                            if (target instanceof char[]) {
                                 //process into char[] , default value is '\u0000'
                                 char[] a = (char[]) target;
                                 Arrays.fill(a, '\u0000');
                                 return (N_DimensionalArray) a;
-                            } else if (target instanceof int[] || target instanceof Integer[]){
+                            } else if (target instanceof int[]){
                                 int[] a = (int[]) target;
                                 Arrays.fill(a, 0);
                                 return (N_DimensionalArray) a;
-                            } else if (target instanceof boolean[] || target instanceof Boolean[]) {
+                            } else if (target instanceof boolean[]) {
                                 boolean[] a = (boolean[]) target;
                                 Arrays.fill(a, false);
                                 return (N_DimensionalArray) a;
-                            } else if (target instanceof long[] || target instanceof Long[]){
+                            } else if (target instanceof long[]){
                                 long[] a = (long[]) target;
                                 Arrays.fill(a, 0L);
                                 return (N_DimensionalArray) a;
-                            } else if (target instanceof short[] || target instanceof Short[]) {
+                            } else if (target instanceof short[]) {
                                 short[] a = (short[]) target;
                                 Arrays.fill(a, (short) 0);
                                 return (N_DimensionalArray) a;
-                            } else if (target instanceof byte[] || target instanceof Byte[]){
+                            } else if (target instanceof byte[]){
                                 byte[] a = (byte[]) target;
                                 Arrays.fill(a, (byte) 0);
                                 return (N_DimensionalArray) a;
-                            } else if (target instanceof float[] || target instanceof Float[]){
+                            } else if (target instanceof float[]){
                                 float[] a = (float[]) target;
                                 Arrays.fill(a, 0.0F);
                                 return (N_DimensionalArray) a;
-                            } else if (target instanceof double[] || target instanceof Double[]) {
+                            } else if (target instanceof double[]) {
                                 double[] a = (double[]) target;
                                 Arrays.fill(a, 0.0D);
                                 return (N_DimensionalArray) a;
+                            } else if (target instanceof Character[] ) {
+                                Character[] charArray = (Character[]) target;
+                                Arrays.fill(new char[charArray.length], '\u0000');
+                            } else if (target instanceof Integer[]){
+                                Integer[] arr = (Integer[]) target;
+                                Arrays.fill(new int[arr.length], 0);
+                            } else if (target instanceof Boolean[]){
+                                Boolean[] arr = (Boolean[]) target;
+                                Arrays.fill(new boolean[arr.length], false);
+                            } else if (target instanceof Long[]) {
+                                Long[] arr = (Long[]) target;
+                                Arrays.fill(new long[arr.length], 0L);
+                            } else if (target instanceof Short[]) {
+                                Short[] arr = (Short[]) target;
+                                Arrays.fill(new short[arr.length], (short) 0);
+                            } else if (target instanceof Byte[]) {
+                                Byte[] arr = (Byte[]) target;
+                                Arrays.fill(new byte[arr.length], (byte) 0);
+                            } else if (target instanceof Float[]) {
+                                Float[] arr = (Float[]) target;
+                                Arrays.fill(new float[arr.length], 0.0F);
+                            } else if (target instanceof Double[]) {
+                                Double[] arr = (Double[]) target;
+                                Arrays.fill(new double[arr.length], 0.0D);
                             } else {
                                 //String[] { }, or any other arrays that stores objects, which IS NOT POSSIBLE TO BE CONVERTED INTO PRIMITIVE
                                 throw new ContentsNotPrimitiveException("The array that you have supplied can only be of reference type and not primitive type. Please change to either 'reference' or 'Reference', or supply this method with a array that does not consists of referential data types.");
@@ -1081,8 +1107,10 @@ final class Tools {
         public String format(String representation, Object ...args) throws NotAStringException {
             int[] formatterStarter = selectAllIndexOf('{');
             char[] representationAsArray = representation.toCharArray();
-            ArrayList<Integer> numOfTabsRecorder = new ArrayList<>();
-            int steps = 1; String translate = "";
+            HashMap<String, Integer> numOfTabsRecorder = new HashMap<>();
+            int steps = 1;
+            String translate = "";
+            int targetCharIndex = 0;
             for (int i = 0; i < formatterStarter.length; ++i) {
                 if (new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().equals(">")) {
                     steps++;
@@ -1094,9 +1122,11 @@ final class Tools {
                             break;
                         }
                     }
-                    numOfTabsRecorder.add(Integer.parseInt(translate));
+
+                    numOfTabsRecorder.put("Right", Integer.parseInt(translate));
 
                 } else if (new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().equals("<")) {
+                    //This
 
                 } else if (new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().equals(":")) {
 
@@ -1107,8 +1137,8 @@ final class Tools {
         public int[] selectAllIndexOf(char target){
             char[] source = this.str.toCharArray();
             int occurrences = 0;
-            for (int i = 0; i < source.length; ++i){
-                if (source[i] == target){
+            for (char c : source) {
+                if (c == target) {
                     occurrences++;
                 }
             }
@@ -1256,7 +1286,7 @@ final class Tools {
         }
 
         //This class shall not be declared as private LOL
-        public final class Determinant{
+        public static final class Determinant{
             private Object target;
 
             public <T> Determinant(T target){
@@ -1314,7 +1344,7 @@ final class Tools {
             }
         }
 
-        public final class Highlight{
+        public static final class Highlight{
             private String slicedString;
 
             public Highlight(String s){
@@ -1342,6 +1372,7 @@ final class Tools {
                 int i = 0;
                 do {
                     output += result[i];
+                    i++;
                 }
                 while (i < result.length);
                 return new Highlight(output);
@@ -1467,7 +1498,7 @@ final class Tools {
                     catch (Exception e2){
                         try {
                             //try to cast the item into a string?
-                            return ((String) value).length() == 1 ? (T) Character.valueOf((char) value) : ((String) value).equals("true") || ((String) value).equals("false") ? (T) Boolean.valueOf((boolean) value) : (T) String.valueOf((String) value);
+                            return ((String) value).length() == 1 ? (T) Character.valueOf((char) value) : value.equals("true") ||  value.equals("false") ? (T) Boolean.valueOf((boolean) value) : (T) String.valueOf(value);
                         }
                         catch (Exception e3) {
                             throw new ContentsNotPrimitiveException("The provided results is not of a primitive type. Accepted primitive types include 'int', 'char', 'boolean', 'long', 'short', 'byte', 'float', 'double");
@@ -1660,7 +1691,7 @@ final class Binary extends Object implements java.io.Serializable{
         char[] c1 = Integer.toString(this.binaryNum).toCharArray();
         Character[] cOut = Tools.Converter.ReferenceTypeConverter.simplifiedToComplexArray(c);
         Character[] c1Out = Tools.Converter.ReferenceTypeConverter.simplifiedToComplexArray(c1);
-        String result = new String();
+        String result = "";
         int tracker = 1;
         do {
             if ((Tools.ArrayUtilsCustom.getElementAt(cOut.length - tracker).in(cOut) == '1' && Tools.ArrayUtilsCustom.getElementAt(c1Out.length - tracker).in(c1Out) == '1')) {
