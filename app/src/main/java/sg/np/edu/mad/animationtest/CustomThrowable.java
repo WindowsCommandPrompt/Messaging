@@ -110,3 +110,16 @@ final class NotAStringException extends Exception {
 
     public NotAStringException(String msg){ this.msg = msg; }
 }
+
+//Throw this exception when the string placeholder is not expressed correctly
+final class InvalidStringFormatPlaceholderException extends Exception {
+    private String msg;
+
+    public InvalidStringFormatPlaceholderException(){
+
+    }
+
+    public InvalidStringFormatPlaceholderException(String msg){
+        this.msg = msg;
+    }
+}

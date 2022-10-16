@@ -850,36 +850,36 @@ final class Tools {
                                 throw new ContentsNotPrimitiveException("The array that you have supplied can only be of reference type and not primitive type. Please change to either 'reference' or 'Reference', or supply this method with a array that does not consists of referential data types.");
                             }
                         } else if (target.equals("reference") || target.equals("Reference")) {
-                            if (target instanceof char[] || target instanceof Character[]) {
+                            if (target instanceof Character[]) {
                                 //process into char[] , default value is '\u0000'
                                 Character[] a = (Character[]) target;
                                 Arrays.fill(a, null);
                                 return (N_DimensionalArray) a;
-                            } else if (target instanceof int[] || target instanceof Integer[]){
+                            } else if (target instanceof Integer[]){
                                 Integer[] a = (Integer[]) target;
                                 Arrays.fill(a, null);
                                 return (N_DimensionalArray) a;
-                            } else if (target instanceof boolean[] || target instanceof Boolean[]) {
+                            } else if (target instanceof Boolean[]) {
                                 Boolean[] a = (Boolean[]) target;
                                 Arrays.fill(a, null);
                                 return (N_DimensionalArray) a;
-                            } else if (target instanceof long[] || target instanceof Long[]){
+                            } else if (target instanceof Long[]){
                                 Long[] a = (Long[]) target;
                                 Arrays.fill(a, 0L);
                                 return (N_DimensionalArray) a;
-                            } else if (target instanceof short[] || target instanceof Short[]) {
+                            } else if (target instanceof Short[]) {
                                 Short[] a = (Short[]) target;
                                 Arrays.fill(a, null);
                                 return (N_DimensionalArray) a;
-                            } else if (target instanceof byte[] || target instanceof Byte[]){
+                            } else if (target instanceof Byte[]){
                                 Byte[] a = (Byte[]) target;
                                 Arrays.fill(a, null);
                                 return (N_DimensionalArray) a;
-                            } else if (target instanceof float[] || target instanceof Float[]){
+                            } else if (target instanceof Float[]){
                                 Float[] a = (Float[]) target;
                                 Arrays.fill(a, null);
                                 return (N_DimensionalArray) a;
-                            } else if (target instanceof double[] || target instanceof Double[]) {
+                            } else if (target instanceof Double[]) {
                                 Double[] a = (Double[]) target;
                                 Arrays.fill(a, null);
                                 return (N_DimensionalArray) a;
@@ -922,7 +922,6 @@ final class Tools {
         }
 
         //only for single dimensional array
-        @SuppressWarnings("unchecked")
         public static <N_DimensionalArray> String toString(@NonNull N_DimensionalArray target){
             String representable = "@Array";
             char[] detector = target.getClass().toString().toCharArray();
@@ -1174,7 +1173,7 @@ final class Tools {
 
         //StringAddOn.format("{:[2]}s{>12:[1]}", 12, "string") => "strings\t\t\t\t\t\t\t\t\t\t\t\t12" => "strings                                             12"
         //Wrong syntax will result in the string not rendered correctly, no exception will be thrown
-        public String format(String representation, Object ...args) throws NotAStringException {
+        public String format(String representation, Object ...args) throws NotAStringException, InvalidStringFormatPlaceholderException {
             int[] formatterStarter = selectAllIndexOf('{');
             int[] formatterEnder = selectAllIndexOf('}');
             int[] divider = selectAllIndexOf(':');
@@ -1197,7 +1196,7 @@ final class Tools {
                             if (Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9').contains(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().length() - 1))) {
                                 translate = new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString(); //re-assign to a new string (number of tabs needed to be added expressed in the form of a string)
                             } else {
-                                Log.w("INVALIDSTRINGFORMATPLACEMENTSYNTAX", "E1: The ");
+                                throw new InvalidStringFormatPlaceholderException(String.format("E11: Integer (number) expected after ':' symbol, but %s was given, which is not a string", new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString()));
                             }
                             steps++; //advance
                         } else {
@@ -1214,7 +1213,7 @@ final class Tools {
                             if (new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().charAt(new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().length() - 1) == '['){ //start of square bracket
                                 numAsString = new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString(); //assign contents between '[' and ']'
                             } else {
-                                Log.w("INVALIDSTRINGFORMATPLACEMENTSYNTAX", "");
+                                throw new InvalidStringFormatPlaceholderException("E1: Integer expected after ':'");
                             }
                             //find '[' character
                             steps++; //continue advancing if '[' or ']' not found
