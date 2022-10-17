@@ -770,7 +770,7 @@ final class Tools {
         //boolean[] -> Boolean[] { null, null, null }
         //inform the user if a single dimensional array has been passed as part of the parameter
         @SuppressWarnings("unchecked")
-        public static <N_DimensionalArray> N_DimensionalArray initialize(@NonNull N_DimensionalArray target, @AcceptStrings(permittedStrings = {"Primitive", "Reference", "primitive", "reference"}, defaultValueIfInvalid = "Reference") String result) throws NotAnArrayException, NoSuchMethodException, ContentsNotPrimitiveException {
+        public static <N_DimensionalArray> N_DimensionalArray initialize(@NonNull N_DimensionalArray target, @AcceptStrings(permittedStrings = {"Primitive", "Reference", "primitive", "reference"}, defaultValueIfInvalid = "Reference") String result) throws NotAnArrayException, NoSuchMethodException, ContentsNotPrimitiveException, IncompatibleTypeException {
             String[] allowedParameters = ((AcceptStrings) ArrayUtilsCustom.class.getMethod("initialize", String.class).getParameterAnnotations()[0][0]).permittedStrings();
             String defaultValueIfInvalid = ((AcceptStrings) ArrayUtilsCustom.class.getMethod("initialize", String.class).getParameterAnnotations()[0][0]).defaultValueIfInvalid();
             if (!ArrayUtilsCustom.containsElement(result, allowedParameters)){
@@ -884,11 +884,17 @@ final class Tools {
                                 Arrays.fill(a, null);
                                 return (N_DimensionalArray) a;
                             } else {
-                                //Fill array with null;
+                                throw new IncompatibleTypeException("You are passing in an array that contains elements which cannot be represented in a primitive type.");
                             }
                         }
                     } else {
                         //root.length = 0? if not 0 then move on to for loop to identify which internal element's length is 0,
+                        //when dimension equals to 2, 2 nested loops??
+                        if (target.equals("primitive") || target.equals("Primitive")){
+
+                        } else if (target.equals("reference") || target.equals("Reference")){
+
+                        }
                     }
                 } else {
                     throw new NotAnArrayException("The given value for parameter 'target is not of an array'");
@@ -1420,6 +1426,8 @@ final class Tools {
              */
             String[] basicTokenizing = command.split(" ");
             ArrayList<RegexConditionalCommandSyntaxError> errorList = new ArrayList<>();
+            //find all occurrences of '@' within the thing
+            int[] atSymbolOccurrences = new StringAddOn(command).selectAllIndexOf('@'); 
             char[][] referenceFunctionCharArray = new char[][] { "symbol".toCharArray(), "sandwiched".toCharArray(), "declareArray".toCharArray(), "reverse".toCharArray() };
             char[][] referenceKeyWordCharArray = new char[][] { "end".toCharArray(), "if".toCharArray(), "else".toCharArray() };
             char[][] acceptableOperatorList = new char[][] { "->".toCharArray(), "()->".toCharArray(), "<-".toCharArray(), "<-()".toCharArray(), "<=".toCharArray(), "<".toCharArray(), ">".toCharArray(), ">=".toCharArray() };
@@ -1450,10 +1458,21 @@ final class Tools {
                         if (new StringAddOn(command).after('{', 0).advance(steps).getString().equals("\n")){
 
                         } else if (new StringAddOn(command).after('{', 0).advance(steps).getString().equals("@") ) {
-                            char[] selectedReference1 = referenceFunctionCharArray[2];  //if after the "@" symbol is "declareArray"
-                            Function<char[], Boolean> isDeclareArray = x -> {
+                            int starter = 0;
+                            for(; ; ) {
+                                starter++;
+                                if (starter < referenceFunctionCharArray.length) {
+                                    for(; ; ){
+                                        if (pointerIndexInReference < referenceFunctionCharArray[starter].length){
 
-                            };
+                                        } else {
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    break;
+                                }
+                            }
                         } else if (new StringAddOn(command).after('{', 0).advance(steps).getString().equals("if")) {
 
                         } else {
@@ -1493,10 +1512,14 @@ final class Tools {
             }
 
             public <T extends String> void remove(T segment) throws NotAStringException {
+
                 if (this.target instanceof String){
+                    char[] tempArr = ((String) segment).toCharArray();
+                    for (char c : tempArr){
 
+                    }
                 } else {
-
+                    throw new NotAStringException("'segment' is not expressed in a string");
                 }
             }
 
@@ -1795,11 +1818,14 @@ final class Binary extends Object implements java.io.Serializable{
         Character[] c1Out = Tools.Converter.ReferenceTypeConverter.simplifiedToComplexArray(c1);
         String result = new String();
         int tracker = 1;
+        //Compare the last character
+        char[] output = new char[Math.max(Integer.toString(this.binaryNum).length(), Integer.toString(num.getBinaryNum()).length())];
         do {
             //'1' + '1' = '10'  last digit becomes '0', '1' shifted to before '0'
             if (Tools.ArrayUtilsCustom.getElementAt(cOut.length - tracker).in(cOut) == '1' && Tools.ArrayUtilsCustom.getElementAt(c1Out.length - tracker).in(c1Out) == '1') {
                 //if both characters are equal to '1'
-                result += '0';
+                output[0] = '0'; //last digit will become 0
+                output[1] = '1'; //the digit before it will become 1 first
             } else {// '0' + '0' = '0', still 0 as always
                 if (Tools.ArrayUtilsCustom.getElementAt(cOut.length - tracker).in(cOut) == '0' && Tools.ArrayUtilsCustom.getElementAt(c1Out.length - tracker).in(c1Out) == '0') {
                     result += '0';
@@ -1811,7 +1837,7 @@ final class Binary extends Object implements java.io.Serializable{
             tracker++; //Add one to the tracker and repeat the whole process again.
         }
         while (cOut.length - tracker >= 0);
-        String outcome = new Tools.StringAddOn(result).reverse();
+
         return null;
     }
 
