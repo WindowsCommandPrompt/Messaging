@@ -2,11 +2,14 @@ package sg.np.edu.mad.animationtest;
 
 import androidx.annotation.NonNull;
 
+import java.lang.annotation.Annotation;
 import java.sql.Array;
 import java.util.*;
 import java.util.function.*;
 
 import android.util.Log;
+
+import com.google.firebase.firestore.util.Assert;
 
 final class Tools {
 
@@ -14,6 +17,7 @@ final class Tools {
 
     }
 
+    //Creating a parsed map
     public static final class ParsedMap<K, V> {
     /*
        GOAL: To allow users to be able to create a map using
@@ -35,10 +39,10 @@ final class Tools {
 
         private K key;
         private V value;
-        private Object[] keys; //unique to each ParsedMap
-        private Object[] values; //unique to each ParsedMap
-        private boolean allowDuplicate;
-        private long defaultEntriesLimit = Long.MAX_VALUE;
+        private Object[] keys; //unique to each ParsedMap (stores all the keys)
+        private Object[] values; //unique to each ParsedMap (stores all the values)
+        private boolean allowDuplicate; //can this parsedMap allow duplicates
+        private long defaultEntriesLimit = Long.MAX_VALUE; //number of elements that can be stored in a single parsed map
         private int numOfNestedArrays = 0;
 
         class Entry<K, V> {   //K, V type parameters in Entry<K, V> must match K, V type parameters written in ParsedMap<K, V>
@@ -69,6 +73,7 @@ final class Tools {
         }
 
         //initialize empty map, attach entries using the setter
+        //set custom limit, allow duplicate
         @SuppressWarnings("unchecked")
         public ParsedMap(long entryLimit, boolean allowDuplicate) throws ValueLessThanOrEqualsZeroException{
             if (entryLimit > 0) {
@@ -82,6 +87,7 @@ final class Tools {
             }
         }
 
+        //initialize parsed map and set custom limit with no duplicates allowed
         @SuppressWarnings("unchecked")
         public ParsedMap(long entryLimit) throws ValueLessThanOrEqualsZeroException{
             if (entryLimit > 0) {
@@ -146,6 +152,7 @@ final class Tools {
                                                                 ? "Float"
                                                                 : this.value instanceof Boolean
                                                                     ? "Boolean"
+                                                                    //if its not boolean then it must be some other objects lol
                                                                     : ""))
                                 : "This parsed map only accepts %s as key, but %s was given as one of its entries, so there is a datatype conflict",
                                     (this.key instanceof String
@@ -156,7 +163,12 @@ final class Tools {
                                                 ? "Character"
                                                 : this.key instanceof Double
                                                     ? "Double"
-                                                    : ""))
+                                                    : this.key instanceof Float
+                                                        ? "Float"
+                                                        : this.key instanceof Boolean
+                                                            ? "Boolean"
+                                                            //if its not boolean then it must be some other objects LOL
+                                                            : ""))
                     );
                 }
                 //continue looping through the list of entry objects if required, otherwise throw an exception when the loop finishes
@@ -172,10 +184,23 @@ final class Tools {
             }
         }
 
-        //NON-UNIQUE ENTRIES
-        public ParsedMap(List<Entry> entries) throws IncompatibleTypeException{
-            Class<?> entryKeyClass; Class<?> entryValueClass;
-
+        //NON-UNIQUE ENTRIES,
+        @SuppressWarnings("unchecked")
+        public <T> ParsedMap(List<Entry> entries) throws IncompatibleTypeException{
+            Class<?> entryKeyClass; //stores the class type of the keys
+            Class<?> entryValueClass; //stores the class type of the values
+            this.keys = (K[]) new Object[entries.size()];
+            this.values = (V[]) new Object[entries.size()];
+            for (int i = 0; i < entries.size(); i++){
+                //get the class of the entry's key (key) cannot be null??
+                if (entries.get(i).key != null){
+                    this.keys[i] = entries.get(i).key;
+                    this.values[i] = entries.get(i).value;
+                    this.allowDuplicate = false;
+                } else {
+                    throw new IncompatibleTypeException("A map's key cannot be assigned to null");
+                }
+            }
         }
 
         public <K, V> void setItem(K key, V value) throws NotAnArrayException, ContentsNotPrimitiveException, IncompatibleTypeException{
@@ -251,10 +276,6 @@ final class Tools {
                 }
             }
         }
-
-        public void A(){
-
-        }
     }
 
     private static final class TypeIdentifierUtil {
@@ -328,10 +349,12 @@ final class Tools {
             return sample.size() > 1 ? InternalStorage.checksFor(sample, sample.size()) : sample.size() == 0 ? sample.get(0) instanceof Boolean :
         }
 
+        //Check if every single element within the array list is of type integer
         public static <T> boolean allAreInteger(ArrayList<T> sample){
             return false;
         }
 
+        //Check if every sin
         public static <T> boolean allAreString(ArrayList<T> sample){
             return false;
         }
@@ -890,10 +913,19 @@ final class Tools {
                     } else {
                         //root.length = 0? if not 0 then move on to for loop to identify which internal element's length is 0,
                         //when dimension equals to 2, 2 nested loops??
+                        //if target is an instance of Object[], it means that there are more than one type of array stored within target.
                         if (target.equals("primitive") || target.equals("Primitive")){
+                            if (target instanceof Object[]){
+                                for (Object obj : (Object[]) target){
 
+                                }
+                            }
                         } else if (target.equals("reference") || target.equals("Reference")){
+                            if (target instanceof Object[]){
+                                for (Object obj : (Object[]) target){
 
+                                }
+                            }
                         }
                     }
                 } else {
@@ -1747,41 +1779,106 @@ final class Tools {
     }
 
     @ParameterTypes(input = { String.class, String.class }, index = 0) //apply to first ELasticFunction
-    @ParameterTypes(input = { String.class, int.class }, output = double.class, index = 1)
-    @ParameterTypes(input = { String.class, int.class, double.class }, output = float.class, index = 3)
+    @ParameterTypes(input = { String.class, Integer.class }, output = Double.class, index = 1)
+    @ParameterTypes(input = { String.class, Integer.class, Long.class }, output = Void.class, index = 2)
+    @ParameterTypes(input = { String.class, Integer.class, Double.class }, output = Float.class, index = 3)
     public static void Test() throws NoSuchMethodException{
-        ElasticFunction elasticFunc = arr -> {
+        ElasticFunction elasticFunc = (arr, arr1) -> {
             //Number of parameters supplied by input must equate to number of elements in
 
 
             return null;
         };
 
+        ElasticFunction anotherFunc = (arr, arr1, arr13) -> {
+            return 0.1f;
+        };
 
+        ElasticFunction anotherFunc1 = (a, b, c) -> {
+            return null;
+        };
         elasticFunc.apply("Test", "string2", "this stupid thing");
-
+        
     }
 
     //Function<P1, P2, R> only accepts a total of 2 parameters
-    @FunctionalInterface
     interface ElasticFunction {
         //all annotations are interfaces! T now becomes a sub interface???
-        Object apply(String methodName, Object... a) throws NoSuchMethodException;
+        Object apply(String methodName, Object... a) throws IncompatibleTypeException;
     }
 
     public static class FunctionExtra implements ElasticFunction{
         @Override
-        public Object apply(String methodName, Object... a) throws NoSuchMethodException {
+        @SuppressWarnings("unchecked")
+        public Object apply(String methodName, Object... a) throws IncompatibleTypeException { //method name refers to the name of the method
             //find the method return the annotation.
-            Function<java.lang.reflect.Method, Object[]> res = x -> {
-                Class<?>[] classTypes = ((ParameterTypes) x.getAnnotation(ParameterTypes.class)).input();
-                Class<?> output = ((ParameterTypes) x.getAnnotation(ParameterTypes.class)).output();
-                return new Object[]{ classTypes, output };
-            };
+            Object[] result = ((Function<java.lang.reflect.Method, Object[]>) x -> {
+                assert x != null : "Method was not found!";
+                Class<?>[] inputClassTypes = ((Function<Annotation, Class<?>[]>) test -> {
+                    assert (ParameterTypes) test != null : "Annotation is null!"; //if annotation returned is null then throw an AssertionError
+                    return ((ParameterTypes) test).input(); //if annotation is found then return an array of classes
+                }).apply(((ParameterTypes) x.getAnnotation(ParameterTypes.class)));
+                Class<?> outputClassType = ((Function<Annotation, Class<?>>) test -> {
+                    assert (ParameterTypes) test != null : "Annotation is null!"; //if annotation returned is null then throw an AssertionError
+                    return ((ParameterTypes) test).output(); //if annotation is found then return array of classes
+                }).apply(((ParameterTypes) x.getAnnotation(ParameterTypes.class)));
+                return new Object[]{ inputClassTypes, outputClassType };
+            }).apply(((Supplier<java.lang.reflect.Method>) () -> {
+                try {
+                    return Tools.class.getMethod(methodName);
+                } catch (NoSuchMethodException ex){
+                    ex.printStackTrace();
+                    return null;
+                }
+            }).get());
             // if a[i] not an instanceof Class<?>[i] then throw an exception
-            java.lang.reflect.Method m = Tools.class.getMethod(methodName);
             for (int i = 0; i < a.length; i++){ //a contains a list of parameters... by right idk
+                Class<?>[] inputParameterTypes = (Class<?>[])result[0]; //get the list of input parameter classes
+                assert (!((BiFunction<Object, Integer, Boolean>) (t, n) -> {
+                    //if t is instance of Integer class then cast it to integer
+                    if (t != null) { //check for whether t of type Object is null.
+                        try {
+                            int resInt = (int) t;
+                            //t is now an int
+                            inputParameterTypes[n].getName();
+                        } catch (Exception e1) {
+                            try {
+                                double resInt = (double) t;
+                                //t is now a double
 
+                            } catch (Exception ignored) {
+                                try {
+                                    long resInt = (long) t;
+                                } catch (Exception ignored1) {
+                                    try {
+                                        short resInt = (short) t;
+                                    } catch (Exception ignored2) {
+                                        try {
+                                            boolean resInt = (boolean) t;
+                                        } catch (Exception ignored3) {
+                                            try {
+                                                float resInt = (float) t;
+                                            } catch (Exception ignored4) {
+                                                try {
+                                                    char resInt = (char) t;
+                                                } catch (Exception ignored5) {
+                                                    try {
+                                                        Integer resInt = (Integer) t;
+                                                        return resInt.getClass().equals(inputParameterTypes[n].getClass());
+                                                    } catch (Exception ignored6) {
+
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+
+                    }
+                }).apply(a[i], i)) : "Type mismatch";
             }
         }
     }
