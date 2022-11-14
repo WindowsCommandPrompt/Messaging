@@ -45,7 +45,7 @@ final class Tools {
         private long defaultEntriesLimit = Long.MAX_VALUE; //number of elements that can be stored in a single parsed map
         private int numOfNestedArrays = 0;
 
-        class Entry<K, V> {   //K, V type parameters in Entry<K, V> must match K, V type parameters written in ParsedMap<K, V>
+        public static class Entry<K, V> {   //K, V type parameters in Entry<K, V> must match K, V type parameters written in ParsedMap<K, V>
             private K key; //stores the value of the key
             private V value; //stores the value of the value
 
@@ -102,6 +102,7 @@ final class Tools {
         }
 
         //initialize empty map, attach entries using the setter
+        @SuppressWarnings("unchecked")
         public ParsedMap(){
             this.keys = (K[]) new Object[(int) defaultEntriesLimit];
             this.values = (V[]) new Object[(int) defaultEntriesLimit];
@@ -110,6 +111,7 @@ final class Tools {
 
         //initialize a map that has values in it
         //check the datatype that has been stored within each Entry<> object  UNIQUE ENTRIES ONLY
+        @SuppressWarnings("unchecked")
         public ParsedMap(HashSet<Entry> entries) throws IncompatibleTypeException{
             Class<?> entryKeyClass; Class<?> entryValueClass;
             for (Entry e : entries){
@@ -432,10 +434,14 @@ final class Tools {
                             final String STRING_POOL = LOWER_CASE_LETTERS + UPPER_CASE_LETTERS + DIGITS;
                             char[] allCharactersAsArray = STRING_POOL.toCharArray();
                             Character[] result = (Character[]) Converter.ReferenceTypeConverter.simplifiedToComplexArray(allCharactersAsArray);
-                            for (Character c : result) {
+                            Runnable r = result != null ? () -> {
+                                for (Character c : result) { //loop through every single character
 
-                            }
+                                }
+                            } : () -> {
 
+                            };
+                            r.run(); 
                             List<Object> internalList = (List<Object>) a[i][j];
                             for (Object obj : internalList){
                                 if (obj instanceof Object[][]){
@@ -723,6 +729,7 @@ final class Tools {
         }
 
         //good for multi-dimensional-array, single dimensional array can also be used within this method, but not recommended lol
+        @SuppressWarnings("unchecked")
         public static <MultiDimensionalArray, T> MultiDimensionalArray reverse(@NonNull MultiDimensionalArray target, @AcceptStrings(permittedStrings = {"FlipAll", "FlipContainer"}, defaultValueIfInvalid = "FlipAll") String choice) throws NotAnArrayException, NoSuchMethodException, ContentsNotPrimitiveException{
             String[] allowedParameters = ((AcceptStrings) ArrayUtilsCustom.class.getMethod("reverse", String.class).getParameterAnnotations()[0][0]).permittedStrings();
             String defaultValueIfInvalid = ((AcceptStrings) ArrayUtilsCustom.class.getMethod("reverse", String.class).getParameterAnnotations()[0][0]).defaultValueIfInvalid();
@@ -1780,37 +1787,55 @@ final class Tools {
 
     @ParameterTypes(input = { String.class, String.class }, index = 0) //apply to first ELasticFunction
     @ParameterTypes(input = { String.class, Integer.class }, output = Double.class, index = 1)
-    @ParameterTypes(input = { String.class, Integer.class, Long.class }, output = Void.class, index = 2)
+    @ParameterTypes(input = { String.class, Integer.class, Long.class }, index = 2)
     @ParameterTypes(input = { String.class, Integer.class, Double.class }, output = Float.class, index = 3)
-    public static void Test() throws NoSuchMethodException{
-        ElasticFunction elasticFunc = (arr, arr1) -> {
+    public static void Test() throws NoSuchMethodException, IncompatibleTypeException{
+        ElasticFunction elasticFunc = (arr, arr1, arr2) -> {
             //Number of parameters supplied by input must equate to number of elements in
 
 
             return null;
         };
 
-        ElasticFunction anotherFunc = (arr, arr1, arr13) -> {
+        ElasticFunction anotherFunc = (arr, arr1) -> {
             return 0.1f;
         };
 
-        ElasticFunction anotherFunc1 = (a, b, c) -> {
-            return null;
-        };
         elasticFunc.apply("Test", "string2", "this stupid thing");
-        
+        anotherFunc.apply("Test", "sf", 12);
+
+
+        TriFunction<Integer, Integer, Double, Double> d = (a, b, c) -> {
+            return 0.5d;
+        };
     }
 
     //Function<P1, P2, R> only accepts a total of 2 parameters
+    @FunctionalInterface
     interface ElasticFunction {
         //all annotations are interfaces! T now becomes a sub interface???
-        Object apply(String methodName, Object... a) throws IncompatibleTypeException;
+        //must specify methodName, this parameter cannot be null
+        Class<?> apply(@NonNull String methodName, Object... a) throws IncompatibleTypeException;
+    }
+
+    @FunctionalInterface
+    interface TriFunction<P1, P2, P3, R>{
+        R execute(P1 param1, P2 param2, P3 param3) throws IncompatibleTypeException;
+
+        default <V> TriFunction<P1, P2, P3, V> andThen(Function<? super R, ? extends V> after) {
+            Objects.requireNonNull(after);
+            return (P1 a, P2 b, P3 c) -> after.apply(execute(a, b, c));
+        }
     }
 
     public static class FunctionExtra implements ElasticFunction{
+
+        private FunctionExtra(){
+
+        }
+
         @Override
-        @SuppressWarnings("unchecked")
-        public Object apply(String methodName, Object... a) throws IncompatibleTypeException { //method name refers to the name of the method
+        public Class<?> apply(@NonNull String methodName, Object... a) throws IncompatibleTypeException { //method name refers to the name of the method
             //find the method return the annotation.
             Object[] result = ((Function<java.lang.reflect.Method, Object[]>) x -> {
                 assert x != null : "Method was not found!";
@@ -1831,42 +1856,71 @@ final class Tools {
                     return null;
                 }
             }).get());
-            // if a[i] not an instanceof Class<?>[i] then throw an exception
+            // if a[i] not an instanceof Class<?>[i] then throw an exception (Check for type)
             for (int i = 0; i < a.length; i++){ //a contains a list of parameters... by right idk
                 Class<?>[] inputParameterTypes = (Class<?>[])result[0]; //get the list of input parameter classes
-                assert (!((BiFunction<Object, Integer, Boolean>) (t, n) -> {
+                (!((BiFunction<Object, Integer, Boolean>) (t, n) -> {
                     //if t is instance of Integer class then cast it to integer
                     if (t != null) { //check for whether t of type Object is null.
                         try {
                             int resInt = (int) t;
                             //t is now an int
-                            inputParameterTypes[n].getName();
+                            //corresponding datatype must be primitive and of type 'int'
+                            //now check if inputParameterTypes[n] is of type 'int'...
+                            assert inputParameterTypes[n].isPrimitive() && int.class.toString().equals(inputParameterTypes[n].getName()): String.format("Incompatible types found. Expected %s but found %s", int.class.getName(), inputParameterTypes[n].getName());
                         } catch (Exception e1) {
                             try {
                                 double resInt = (double) t;
                                 //t is now a double
-
+                                //corresponding datatype must be primitive and of type 'double'
+                                assert inputParameterTypes[n].isPrimitive() && double.class.toString().equals(inputParameterTypes[n].getName()) : String.format("Incompatible types found. Expected %s but found %s", double.class.getName(), inputParameterTypes[n].getName());
                             } catch (Exception ignored) {
                                 try {
                                     long resInt = (long) t;
+                                    assert inputParameterTypes[n].isPrimitive() && long.class.toString().equals(inputParameterTypes[n].getName()) : String.format("Incompatible types found. Expected %s but found %s", long.class.getName(), inputParameterTypes[n].getName());
                                 } catch (Exception ignored1) {
                                     try {
                                         short resInt = (short) t;
+                                        assert inputParameterTypes[n].isPrimitive() && short.class.toString().equals(inputParameterTypes[n].getName()) : String.format("Incompatible types found. Expected %s but found %s", short.class.getName(), inputParameterTypes[n].getName());
                                     } catch (Exception ignored2) {
                                         try {
                                             boolean resInt = (boolean) t;
+                                            assert inputParameterTypes[n].isPrimitive() && boolean.class.toString().equals(inputParameterTypes[n].getName()) : String.format("Incompatible types found. Expected %s but found %s", boolean.class.getName(), inputParameterTypes[n].getName());
                                         } catch (Exception ignored3) {
                                             try {
                                                 float resInt = (float) t;
+                                                assert inputParameterTypes[n].isPrimitive() && float.class.toString().equals(inputParameterTypes[n].getName()) : String.format("Incompatible types found. Expected %s but found %s", float.class.getName(), inputParameterTypes[n].getName());
                                             } catch (Exception ignored4) {
                                                 try {
                                                     char resInt = (char) t;
+                                                    assert inputParameterTypes[n].isPrimitive() && char.class.toString().equals(inputParameterTypes[n].getName()) : String.format("Incompatible types found. Expected %s but found %s", char.class.getName(), inputParameterTypes[n].getName());
                                                 } catch (Exception ignored5) {
                                                     try {
                                                         Integer resInt = (Integer) t;
-                                                        return resInt.getClass().equals(inputParameterTypes[n].getClass());
+                                                        //Integer must be Integer
+                                                        assert resInt.getClass().getName().equals(inputParameterTypes[n].getName()) : String.format("Incompatible types found. Expected %s but found %s", resInt.getClass().getName(), inputParameterTypes[n].getName());
                                                     } catch (Exception ignored6) {
+                                                        try{
+                                                            Long resInt = (Long) t;
+                                                        } catch (Exception ignored7) {
+                                                            try {
+                                                                Short resInt = (Short) t;
+                                                            } catch (Exception ignored8) {
+                                                                try {
+                                                                    Boolean resInt = (Boolean) t;
+                                                                } catch (Exception ignored9){
+                                                                    try {
+                                                                        Float resInt = (Float) t;
+                                                                    } catch (Exception ignored10) {
+                                                                        try {
+                                                                            Character resInt = (Character) t;
+                                                                        } catch (Exception ignored11) {
 
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
@@ -1875,17 +1929,18 @@ final class Tools {
                                 }
                             }
                         }
-                    } else {
-
+                    } else { //if t is null
+                        //if supplied parameter is of primitive then it cannot contain null
                     }
-                }).apply(a[i], i)) : "Type mismatch";
+                }).apply(a[i], i));
             }
+            //check for number of parameters
         }
     }
 }
 
 //isolated independent datatype class
-final class Binary extends Object implements java.io.Serializable{
+final class Binary implements java.io.Serializable{
     private int binaryNum;
 
     //Constructor to store a binary value data IDK
@@ -1901,6 +1956,7 @@ final class Binary extends Object implements java.io.Serializable{
         return this.binaryNum;
     }
 
+    @NonNull
     @Override
     public String toString(){
         return "" + this.binaryNum;
@@ -1913,7 +1969,7 @@ final class Binary extends Object implements java.io.Serializable{
         char[] c1 = Integer.toString(this.binaryNum).toCharArray();
         Character[] cOut = Tools.Converter.ReferenceTypeConverter.simplifiedToComplexArray(c);
         Character[] c1Out = Tools.Converter.ReferenceTypeConverter.simplifiedToComplexArray(c1);
-        String result = new String();
+        String result = "";
         int tracker = 1;
         //Compare the last character
         char[] output = new char[Math.max(Integer.toString(this.binaryNum).length(), Integer.toString(num.getBinaryNum()).length())];
@@ -1921,8 +1977,9 @@ final class Binary extends Object implements java.io.Serializable{
             //'1' + '1' = '10'  last digit becomes '0', '1' shifted to before '0'
             if (Tools.ArrayUtilsCustom.getElementAt(cOut.length - tracker).in(cOut) == '1' && Tools.ArrayUtilsCustom.getElementAt(c1Out.length - tracker).in(c1Out) == '1') {
                 //if both characters are equal to '1'
-                output[0] = '0'; //last digit will become 0
-                output[1] = '1'; //the digit before it will become 1 first
+                output[output.length - 1] = '0'; //last digit will become 0
+                output[output.length - 2] = '1'; // the digit before it will become 1 first
+
             } else {// '0' + '0' = '0', still 0 as always
                 if (Tools.ArrayUtilsCustom.getElementAt(cOut.length - tracker).in(cOut) == '0' && Tools.ArrayUtilsCustom.getElementAt(c1Out.length - tracker).in(c1Out) == '0') {
                     result += '0';
@@ -2021,7 +2078,7 @@ final class Binary extends Object implements java.io.Serializable{
         return null;
     }
 
-    private static int checkFormat(int binaryNum) throws InvalidBinaryNumberFormat{
+    private int checkFormat(int binaryNum) throws InvalidBinaryNumberFormat{
         char[] tempArr = Integer.toString(binaryNum).toCharArray();
         for (char item : tempArr){
             //  c == '1' || '0'   haiya...
