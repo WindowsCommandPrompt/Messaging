@@ -75,8 +75,8 @@ final class Tools {
         public ParsedMap(long entryLimit, boolean allowDuplicate) throws ValueLessThanOrEqualsZeroException{
             if (entryLimit > 0) {
                 this.defaultEntriesLimit = entryLimit;
-                this.keys = (K[]) new Object[(int) entryLimit];
-                this.values = (V[]) new Object[(int) entryLimit];
+                this.keys = new Object[(int) entryLimit];
+                this.values = new Object[(int) entryLimit];
                 this.allowDuplicate = allowDuplicate;
             }
             else {
@@ -89,8 +89,8 @@ final class Tools {
         public ParsedMap(long entryLimit) throws ValueLessThanOrEqualsZeroException{
             if (entryLimit > 0) {
                 this.defaultEntriesLimit = entryLimit;
-                this.keys = (K[]) new Object[(int) entryLimit];
-                this.values = (V[]) new Object[(int) entryLimit];
+                this.keys = new Object[(int) entryLimit];
+                this.values = new Object[(int) entryLimit];
                 this.allowDuplicate = false;
             }
             else {
@@ -101,14 +101,13 @@ final class Tools {
         //initialize empty map, attach entries using the setter
         @SuppressWarnings("unchecked")
         public ParsedMap(){
-            this.keys = (K[]) new Object[(int) defaultEntriesLimit];
-            this.values = (V[]) new Object[(int) defaultEntriesLimit];
+            this.keys = new Object[(int) defaultEntriesLimit];
+            this.values = new Object[(int) defaultEntriesLimit];
             this.allowDuplicate = false;
         }
 
         //initialize a map that has values in it
         //check the datatype that has been stored within each Entry<> object  UNIQUE ENTRIES ONLY
-        @SuppressWarnings("unchecked")
         public ParsedMap(HashSet<Entry> entries) throws IncompatibleTypeException{
             Class<?> entryKeyClass; Class<?> entryValueClass;
             for (Entry e : entries){
@@ -188,8 +187,8 @@ final class Tools {
         public <T> ParsedMap(List<Entry> entries) throws IncompatibleTypeException{
             Class<?> entryKeyClass; //stores the class type of the keys
             Class<?> entryValueClass; //stores the class type of the values
-            this.keys = (K[]) new Object[entries.size()];
-            this.values = (V[]) new Object[entries.size()];
+            this.keys = new Object[entries.size()];
+            this.values = new Object[entries.size()];
             for (int i = 0; i < entries.size(); i++){
                 //get the class of the entry's key (key) cannot be null??
                 if (entries.get(i).key != null){
@@ -233,7 +232,6 @@ final class Tools {
                             }
                         } else { //drop entry, if duplicate element has been found
                             Log.i("DATANOTINSERTED", "Data is not inserted into the parsed map. Either it is because that parsed map does not allow duplicate entries.\nIf you think this is a mistake, please try to create a new map and re-insert the data again.");
-                            Log.i("", "" + String.format(""));
                         }
                     }
                 } else {
@@ -509,32 +507,32 @@ final class Tools {
                                                 dataTypeRecord[k] = "Map";
                                             }
                                         }
-                                        if (findIndexesOfElement( "String").in(dataTypeRecord).get("String").size() == dataTypeRecord.length){
+                                        if (Objects.requireNonNull(findIndexesOfElement("String").in(dataTypeRecord).get("String")).size() == dataTypeRecord.length){
                                             ArrayList<String> copyOverList = new ArrayList<>();
                                             //copy contents from variable named results
                                             for (int k = 0; k < result.size(); k++){
                                                 copyOverList.add((String) result.get(k));
                                             }
                                         }
-                                        else if (findIndexesOfElement("Integer").in(dataTypeRecord).get("Integer").size() == dataTypeRecord.length){
+                                        else if (Objects.requireNonNull(findIndexesOfElement("Integer").in(dataTypeRecord).get("Integer")).size() == dataTypeRecord.length){
                                             ArrayList<Integer> copyOverList = new ArrayList<>();
                                             for (int k = 0; k < result.size(); k++){
                                                 copyOverList.add((Integer) result.get(k));
                                             }
                                         }
-                                        else if (findIndexesOfElement("Boolean").in(dataTypeRecord).get("Boolean").size() == dataTypeRecord.length){
+                                        else if (Objects.requireNonNull(findIndexesOfElement("Boolean").in(dataTypeRecord).get("Boolean")).size() == dataTypeRecord.length){
                                             ArrayList<Boolean> copyOverList = new ArrayList<>();
                                             for (int k = 0; k < result.size(); k++){
                                                 copyOverList.add((Boolean) result.get(k));
                                             }
                                         }
-                                        else if (findIndexesOfElement("Character").in(dataTypeRecord).get("Character").size() == dataTypeRecord.length){
+                                        else if (Objects.requireNonNull(findIndexesOfElement("Character").in(dataTypeRecord).get("Character")).size() == dataTypeRecord.length){
                                             ArrayList<Character> copyOverList = new ArrayList<>();
                                             for (int k = 0; k < result.size(); k++){
                                                 copyOverList.add((Character) result.get(k));
                                             }
                                         }
-                                        else if (findIndexesOfElement("Float").in(dataTypeRecord).get("Float").size() == dataTypeRecord.length){
+                                        else if (Objects.requireNonNull(findIndexesOfElement("Float").in(dataTypeRecord).get("Float")).size() == dataTypeRecord.length){
                                             ArrayList<Float> copyOverList = new ArrayList<>();
                                             for (int k = 0; k < result.size(); k++){
                                                 copyOverList.add((Float) result.get(k));
@@ -856,29 +854,21 @@ final class Tools {
                                 Arrays.fill(a, 0.0D);
                                 return (N_DimensionalArray) a;
                             } else if (target instanceof Character[] ) {
-                                Character[] charArray = (Character[]) target;
-                                Arrays.fill(new char[charArray.length], '\u0000');
+                                Arrays.fill(new char[((Character[]) target).length], '\u0000');
                             } else if (target instanceof Integer[]){
-                                Integer[] arr = (Integer[]) target;
-                                Arrays.fill(new int[arr.length], 0);
+                                Arrays.fill(new int[((Integer[]) target).length], 0);
                             } else if (target instanceof Boolean[]){
-                                Boolean[] arr = (Boolean[]) target;
-                                Arrays.fill(new boolean[arr.length], false);
+                                Arrays.fill(new boolean[((Boolean[]) target).length], false);
                             } else if (target instanceof Long[]) {
-                                Long[] arr = (Long[]) target;
-                                Arrays.fill(new long[arr.length], 0L);
+                                Arrays.fill(new long[((Long[]) target).length], 0L);
                             } else if (target instanceof Short[]) {
-                                Short[] arr = (Short[]) target;
-                                Arrays.fill(new short[arr.length], (short) 0);
+                                Arrays.fill(new short[((Short[]) target).length], (short) 0);
                             } else if (target instanceof Byte[]) {
-                                Byte[] arr = (Byte[]) target;
-                                Arrays.fill(new byte[arr.length], (byte) 0);
+                                Arrays.fill(new byte[((Byte[]) target).length], (byte) 0);
                             } else if (target instanceof Float[]) {
-                                Float[] arr = (Float[]) target;
-                                Arrays.fill(new float[arr.length], 0.0F);
+                                Arrays.fill(new float[((Float[]) target).length], 0.0F);
                             } else if (target instanceof Double[]) {
-                                Double[] arr = (Double[]) target;
-                                Arrays.fill(new double[arr.length], 0.0D);
+                                Arrays.fill(new double[((Double[]) target).length], 0.0D);
                             } else {
                                 //String[] { }, or any other arrays that stores objects, which IS NOT POSSIBLE TO BE CONVERTED INTO PRIMITIVE
                                 throw new ContentsNotPrimitiveException("The array that you have supplied can only be of reference type and not primitive type. Please change to either 'reference' or 'Reference', or supply this method with a array that does not consists of referential data types.");
@@ -960,9 +950,9 @@ final class Tools {
                     throw new ContentsNotPrimitiveException("Contents within the given array is not of a primitive type");
                 }
                 else {
-                    for (int i = 0; i < sample.length; i++){
-                        if (sample[i] != null) {
-                            return sample[i].equals(target);
+                    for (T t : sample) {
+                        if (t != null) {
+                            return t.equals(target);
                         }
                     }
                 }
@@ -972,7 +962,7 @@ final class Tools {
 
         //only for single dimensional array
         public static <N_DimensionalArray> String toString(@NonNull N_DimensionalArray target){
-            String representable = "@Array";
+            StringBuilder representable = new StringBuilder("@Array");
             char[] detector = target.getClass().toString().toCharArray();
             int dimension = 0;
             for (char c : detector) {
@@ -983,60 +973,60 @@ final class Tools {
             if (dimension == 1) {
                 if (target instanceof char[]){
                     char[] translate = (char[]) target;
-                    representable += "|char|[";
+                    representable.append("|char|[");
                     for (int i = 0; i < translate.length; ++i){
-                        representable += (translate[i] + (i == translate.length - 1 ? ", " : "]"));
+                        representable.append(translate[i]).append(i == translate.length - 1 ? ", " : "]");
                     }
-                    return representable;
+                    return representable.toString();
                 } else if (target instanceof int[]){
                     int[] translate = (int[]) target;
-                    representable += "|int|[";
+                    representable.append("|int|[");
                     for (int i = 0; i < translate.length; ++i){
-                        representable += (translate[i] + (i == translate.length - 1 ? ", " : "]"));
+                        representable.append(translate[i]).append(i == translate.length - 1 ? ", " : "]");
                     }
-                    return representable;
+                    return representable.toString();
                 } else if (target instanceof double[]){
                     double[] translate = (double[]) target;
-                    representable += "|double|[";
+                    representable.append("|double|[");
                     for (int i = 0; i < translate.length; ++i){
-                        representable += (translate[i] + (i == translate.length - 1 ? ", " : "]"));
+                        representable.append(translate[i]).append(i == translate.length - 1 ? ", " : "]");
                     }
-                    return representable;
+                    return representable.toString();
                 } else if (target instanceof boolean[]){
                     boolean[] translate = (boolean[]) target;
-                    representable += "|boolean|[";
+                    representable.append("|boolean|[");
                     for (int i = 0; i < translate.length; ++i){
-                        representable += (translate[i] + (i == translate.length - 1 ? ", " : "]"));
+                        representable.append(translate[i]).append(i == translate.length - 1 ? ", " : "]");
                     }
-                    return representable;
+                    return representable.toString();
                 } else if (target instanceof float[]) {
                     float[] translate = (float[]) target;
-                    representable += "|float|[";
+                    representable.append("|float|[");
                     for (int i = 0; i < translate.length; ++i){
-                        representable += (translate[i] + (i == translate.length - 1 ? ", " : "]"));
+                        representable.append(translate[i]).append(i == translate.length - 1 ? ", " : "]");
                     }
-                    return representable;
+                    return representable.toString();
                 } else if (target instanceof byte[]) {
                     byte[] translate = (byte[]) target;
-                    representable += "|byte|[";
+                    representable.append("|byte|[");
                     for (int i = 0; i < translate.length; ++i){
-                        representable += (translate[i] + (i == translate.length - 1 ? ", " : "]"));
+                        representable.append(translate[i]).append(i == translate.length - 1 ? ", " : "]");
                     }
-                    return representable;
+                    return representable.toString();
                 } else if (target instanceof short[]) {
                     short[] translate = (short[]) target;
-                    representable += "|short|[";
+                    representable.append("|short|[");
                     for (int i = 0; i < translate.length; ++i){
-                        representable += (translate[i] + (i == translate.length - 1 ? ", " : "]"));
+                        representable.append(translate[i]).append(i == translate.length - 1 ? ", " : "]");
                     }
-                    return representable;
+                    return representable.toString();
                 } else if (target instanceof long[]) {
                     long[] translate = (long[]) target;
-                    representable += "|long|[";
+                    representable.append("|long|[");
                     for (int i = 0; i < translate.length; ++i){
-                        representable += (translate[i] + (i == translate.length - 1 ? ", " : "]"));
+                        representable.append(translate[i]).append(i == translate.length - 1 ? ", " : "]");
                     }
-                    return representable;
+                    return representable.toString();
                 }
             } else { //if the dimension is greater than 0
 
@@ -1155,13 +1145,13 @@ final class Tools {
 
             //element can be null
             //good for single dimensional array
-            public <T> boolean startsWith(T target){
+            public boolean startsWith(Object target){
                 return this.arrayStorage[0].equals(target);
             }
 
             //element can be null
             //good for single dimensional array
-            public <T> boolean endsWith(T target){
+            public boolean endsWith(Object target){
                 return this.arrayStorage[this.arrayStorage.length - 1].equals(target);
             }
         }
@@ -1186,13 +1176,13 @@ final class Tools {
             }
             if (currIndex != 0){
                 int initializer = 0;
-                String result = "";
+                StringBuilder result = new StringBuilder();
                 do {
-                    result += temp[initializer];
+                    result.append(temp[initializer]);
                     initializer++;
                 }
                 while (initializer < currIndex);
-                return result;
+                return result.toString();
             }
             else {  //If there is no element before the target symbol, then just return the symbol as a string.
                 return symbol;
@@ -1212,14 +1202,14 @@ final class Tools {
 
         //this method is used to reverse a string
         public String reverse() {
-            String a = "";
+            StringBuilder a = new StringBuilder();
             int index = this.str.length() - 1;
             do {
-                a += this.str.charAt(index);
+                a.append(this.str.charAt(index));
                 index--;
             }
             while (index >= 0);
-            return a;
+            return a.toString();
         }
 
         //StringAddOn.format("{:[2]}s{>12:[1]}", 12, "string") => "strings\t\t\t\t\t\t\t\t\t\t\t\t12" => "strings                                             12"
@@ -1233,7 +1223,7 @@ final class Tools {
             int steps = 1;
             String translate = "";
             int targetCharIndex = 0;
-            String rawTemplateString = "";
+            StringBuilder rawTemplateString = new StringBuilder();
             //length of formatterStarter must be equivalent to the length of formatterEnder
             for (int i = 0; i < formatterStarter.length; ++i) { //looping through the index positions of
                 //what if StringAddOn.format("{:[2]}{{>12:[1]}", 12, "string")  ?? ?
@@ -1283,7 +1273,7 @@ final class Tools {
                     if ((new StringAddOn(representation).setAnchorAt(']', formatterStarter[i]).advance(steps).getString().charAt(0) != '}')) {
                         throw new InvalidStringFormatPlaceholderException("E13: '}' expected after ']'");
                     }
-                    rawTemplateString += "!!@Placeholder!!"; //Temporary placeholder
+                    rawTemplateString.append("!!@Placeholder!!"); //Temporary placeholder
                     //what if StringAddOn.format("{:[2]}}{>12:[1]}", 12, "string") ???
                 } else if (new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().equals("<")) {
                     //logic should be the same as what was written in the 'if' block
@@ -1331,7 +1321,7 @@ final class Tools {
                     if ((new StringAddOn(representation).setAnchorAt(']', formatterStarter[i]).advance(steps).getString().charAt(0) != '}')) {
                         throw new InvalidStringFormatPlaceholderException("E13: '}' expected after ']'");
                     }
-                    rawTemplateString += "!!@Placeholder!!"; //Temporary placeholder
+                    rawTemplateString.append("!!@Placeholder!!"); //Temporary placeholder
                 } else if (new StringAddOn(representation).setAnchorAt('{', formatterStarter[i]).advance(steps).getString().equals(":")) {
                     for (; ; ){
 
@@ -1342,7 +1332,7 @@ final class Tools {
                 }
             }
             //String processing, we will need to return the whole entire string afterwards.
-            String[] indexing = rawTemplateString.split(" ");
+            String[] indexing = rawTemplateString.toString().split(" ");
             int[] allPlaceholders = new StringAddOn(representation).selectAllIndexOfString("!!@Placeholder!!");
             for (int i = 0; i < indexing.length; ++i){
                 if (indexing[i].equals("!!@Placeholder!!")){
@@ -1575,17 +1565,17 @@ final class Tools {
                     String sample = ((String[]) this.target)[0];
                     String anchoringPoint = ((String[]) this.target)[1];
                     BiFunction<Integer, String, String> concatenator = (stepsFromParameter, stringSample) -> {
-                        String result = "";
+                        StringBuilder result = new StringBuilder();
                         //anchoringPoint is a string, which represents the target
                         int tempIndex = Integer.parseInt(((String[]) this.target)[2]); //location of the target in the sample
                         int end = tempIndex + steps; //ending index position
                         if (end <= sample.length() - 1) {
                             do {
-                                result += stringSample.charAt(tempIndex);
+                                result.append(stringSample.charAt(tempIndex));
                                 tempIndex++;
                             }
                             while (tempIndex <= end);
-                            return result; //returns the affected string
+                            return result.toString(); //returns the affected string
                         } else {
                             throw new StringIndexOutOfBoundsException(String.format("Given string length: %d\nGreatest character index possible: %d\nAnchored character index: %d\nIndex of expected element at the end of slicing: %d", anchoringPoint.length(), anchoringPoint.length() - 1, tempIndex, end));
                         }
@@ -1621,14 +1611,14 @@ final class Tools {
                         result[i] = "";
                     }
                 }
-                String output = "";
+                StringBuilder output = new StringBuilder();
                 int i = 0;
                 do {
-                    output += result[i];
+                    output.append(result[i]);
                     i++;
                 }
                 while (i < result.length);
-                return new Highlight(output);
+                return new Highlight(output.toString());
             }
         }
     }
@@ -1945,7 +1935,7 @@ final class Tools {
 }
 
 //isolated independent datatype class
-public final class Binary implements java.io.Serializable{
+final class Binary implements java.io.Serializable{
     private int binaryNum;
 
     //Constructor to store a binary value data IDK
@@ -1961,10 +1951,44 @@ public final class Binary implements java.io.Serializable{
         return this.binaryNum;
     }
 
+    private int checkFormat(int binaryNum) throws InvalidBinaryNumberFormat{
+        char[] tempArr = Integer.toString(binaryNum).toCharArray();
+        for (char item : tempArr){
+            //  c == '1' || '0'   haiya...
+            if (!(item == '1' || item == '0')){
+                throw new InvalidBinaryNumberFormat("Binary number is not represented in the correct format");
+            }
+        }
+        return binaryNum;
+    }
+
     @NonNull
     @Override
     public String toString(){
         return "" + this.binaryNum;
+    }
+
+    @Override
+    public boolean equals(final Object o){
+        //will only work if 'this' != null
+        return o != null && 0 == this.compareTo(((Supplier<Binary>) () -> {
+            assert o instanceof Binary :
+            String.format(
+                    "Incompatible types. Object of type 'Binary' required but %s was supplied as part of the parameter",
+                    ((Supplier<Class<?>>) () -> {
+                        try {
+                            return ((String) o).getClass();
+                        } catch (Exception ignored){
+                            try {
+
+                            } catch (Exception ignored1) {
+
+                            }
+                        }
+                    }).get().getName()
+            );  //forced type equality
+            return (Binary) o;
+        }).get());
     }
 
     //this.getBinaryNum() -> left hand side
@@ -1972,28 +1996,45 @@ public final class Binary implements java.io.Serializable{
     public int compareTo(Binary num){
         String LHS = Integer.toString(this.getBinaryNum());
         String RHS = Integer.toString(num.getBinaryNum());
-        return (
-            LHS.length() > RHS.length() ||
-            //same length
-            ((BiPredicate<String, String>) (a, b) -> {
+        return (//same length
+            LHS.length() > RHS.length() || ((BiPredicate<String, String>) (a, b) -> {
+                boolean expr = false;
                 final char[] LHS_ARR = a.toCharArray(); //number -> string -> char[]
                 final char[] RHS_ARR = b.toCharArray();
                 if (LHS_ARR.length == RHS_ARR.length){
                     //'0' < '1' is true, '1' > '0' is false
                     for (char c1 : LHS_ARR){
                         try {
+                            //left -> '1' '0' '1' '1'
+                            //right -> '1' '0' '1' '0'
                             int index = Tools.ArrayUtilsCustom.findIndexOfElement(c1).in(Objects.requireNonNull(Tools.Converter.ReferenceTypeConverter.simplifiedToComplexArray(LHS_ARR)));
-                            return LHS_ARR[index] > RHS_ARR[index];
+                            expr = LHS_ARR[index] > RHS_ARR[index];
                         } catch (NotAnArrayException | ContentsNotPrimitiveException e) {
                             e.printStackTrace();
                         }
                     }
                 }
-            }).test(LHS, RHS)
-            ? 1
-            : LHS.length() < RHS.length() ||
-
-
+                return expr;
+            }).test(LHS, RHS) ? 1
+            : LHS.length() < RHS.length() || ((BiPredicate<String, String>) (a, b) -> {
+                boolean expr = false;
+                final char[] LHS_ARR = a.toCharArray(); //number -> string -> char[]
+                final char[] RHS_ARR = b.toCharArray();
+                if (LHS_ARR.length == RHS_ARR.length){
+                    //'0' < '1' is true, '1' > '0' is false
+                    for (char c1 : LHS_ARR){
+                        try {
+                            //left -> '1' '0' '1' '1'
+                            //right -> '1' '0' '1' '0'
+                            int index = Tools.ArrayUtilsCustom.findIndexOfElement(c1).in(Objects.requireNonNull(Tools.Converter.ReferenceTypeConverter.simplifiedToComplexArray(LHS_ARR)));
+                            expr = LHS_ARR[index] < RHS_ARR[index];
+                        } catch (NotAnArrayException | ContentsNotPrimitiveException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                return expr;
+            }).test(LHS, RHS) ? -1 : 0
         );
     }
 
@@ -2010,18 +2051,18 @@ public final class Binary implements java.io.Serializable{
         char[] output = new char[Math.max(Integer.toString(this.binaryNum).length(), Integer.toString(num.getBinaryNum()).length())];
         do {
             //'1' + '1' = '10'  last digit becomes '0', '1' shifted to before '0'
-            if (Tools.ArrayUtilsCustom.getElementAt(cOut.length - tracker).in(cOut) == '1' && Tools.ArrayUtilsCustom.getElementAt(c1Out.length - tracker).in(c1Out) == '1') {
-                //if both characters are equal to '1'
-                output[output.length - 1] = '0'; //last digit will become 0
-                output[output.length - 2] = '1'; // the digit before it will become 1 first
-
-            } else {// '0' + '0' = '0', still 0 as always
+            if (Tools.ArrayUtilsCustom.getElementAt(Objects.requireNonNull(cOut).length - tracker).in(cOut) != '1' || Tools.ArrayUtilsCustom.getElementAt(c1Out.length - tracker).in(c1Out) != '1') {// '0' + '0' = '0', still 0 as always
                 if (Tools.ArrayUtilsCustom.getElementAt(cOut.length - tracker).in(cOut) == '0' && Tools.ArrayUtilsCustom.getElementAt(c1Out.length - tracker).in(c1Out) == '0') {
                     result += '0';
                 }
                 else { // '1' + '0' = '1', will give you '1'
                     result += '1';
                 }
+            } else {
+                //if both characters are equal to '1'
+                output[output.length - 1] = '0'; //last digit will become 0
+                output[output.length - 2] = '1'; // the digit before it will become 1 first
+
             }
             tracker++; //Add one to the tracker and repeat the whole process again.
         }
@@ -2037,7 +2078,7 @@ public final class Binary implements java.io.Serializable{
         char[] c1 = Integer.toString(this.binaryNum).toCharArray();
         Character[] cOut = Tools.Converter.ReferenceTypeConverter.simplifiedToComplexArray(c);
         Character[] c1Out = Tools.Converter.ReferenceTypeConverter.simplifiedToComplexArray(c1);
-        String result = new String();
+        String result = "";
         int tracker = 1;
         do {
             assert cOut != null;
@@ -2114,17 +2155,6 @@ public final class Binary implements java.io.Serializable{
         }
         while (cOut.length - tracker >= 0);
         return null;
-    }
-
-    private int checkFormat(int binaryNum) throws InvalidBinaryNumberFormat{
-        char[] tempArr = Integer.toString(binaryNum).toCharArray();
-        for (char item : tempArr){
-            //  c == '1' || '0'   haiya...
-            if (!(item == '1' || item == '0')){
-                throw new InvalidBinaryNumberFormat("Binary number is not represented in the correct format");
-            }
-        }
-        return binaryNum;
     }
 }
 
