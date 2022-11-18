@@ -3,13 +3,10 @@ package sg.np.edu.mad.animationtest;
 import androidx.annotation.NonNull;
 
 import java.lang.annotation.Annotation;
-import java.sql.Array;
 import java.util.*;
 import java.util.function.*;
 
 import android.util.Log;
-
-import com.google.firebase.firestore.util.Assert;
 
 final class Tools {
 
@@ -755,6 +752,7 @@ final class Tools {
                 if (target.getClass().isArray()) {
                     char[] detector = target.getClass().toString().toCharArray();
                     int dimension = 0;
+                    //to store nested arrays, it must be declared with one or more '[]' along with datatype.
                     for (char c : detector) {
                         if (c == '[') {
                             dimension++;
@@ -786,9 +784,15 @@ final class Tools {
                         } else if (target instanceof double[] || target instanceof Double[]) {
                             Double[] a = (Double[]) target;
                             return singleDimensionArray.apply((T[]) a);
+                        } else {
+
                         }
                     } else { //if its a multi-dimensional array Object[].....[] { }
+                        //Object[][] can contain int[], char[], double[], boolean[]
+                        //dimension = number of nested arrays
+                        if (target.getClass().getName().contains("java.lang.Object")){
 
+                        }
                     }
                 }
             }
@@ -1902,6 +1906,7 @@ final class Tools {
                                                     } catch (Exception ignored6) {
                                                         try{
                                                             Long resInt = (Long) t;
+                                                            assert resInt.getClass().getName().equals(inputParameterTypes[n].getName()) : String.format("Incompatible types found. Expected %s but found %s", resInt.getClass().getName(), inputParameterTypes[n].getName());
                                                         } catch (Exception ignored7) {
                                                             try {
                                                                 Short resInt = (Short) t;
@@ -1940,7 +1945,7 @@ final class Tools {
 }
 
 //isolated independent datatype class
-final class Binary implements java.io.Serializable{
+public final class Binary implements java.io.Serializable{
     private int binaryNum;
 
     //Constructor to store a binary value data IDK
@@ -1962,7 +1967,37 @@ final class Binary implements java.io.Serializable{
         return "" + this.binaryNum;
     }
 
-    public Binary plus(Binary num) throws NotAnArrayException, ContentsNotPrimitiveException{
+    //this.getBinaryNum() -> left hand side
+    //num -> right hand side
+    public int compareTo(Binary num){
+        String LHS = Integer.toString(this.getBinaryNum());
+        String RHS = Integer.toString(num.getBinaryNum());
+        return (
+            LHS.length() > RHS.length() ||
+            //same length
+            ((BiPredicate<String, String>) (a, b) -> {
+                final char[] LHS_ARR = a.toCharArray(); //number -> string -> char[]
+                final char[] RHS_ARR = b.toCharArray();
+                if (LHS_ARR.length == RHS_ARR.length){
+                    //'0' < '1' is true, '1' > '0' is false
+                    for (char c1 : LHS_ARR){
+                        try {
+                            int index = Tools.ArrayUtilsCustom.findIndexOfElement(c1).in(Objects.requireNonNull(Tools.Converter.ReferenceTypeConverter.simplifiedToComplexArray(LHS_ARR)));
+                            return LHS_ARR[index] > RHS_ARR[index];
+                        } catch (NotAnArrayException | ContentsNotPrimitiveException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }).test(LHS, RHS)
+            ? 1
+            : LHS.length() < RHS.length() ||
+
+
+        );
+    }
+
+    public Binary plus(@NonNull Binary num) throws NotAnArrayException, ContentsNotPrimitiveException{
         //new Binary(101011).add(new Binary(101110))
         // technically it will be this.binaryNum + num
         char[] c = Integer.toString(num.getBinaryNum()).toCharArray();
@@ -2005,6 +2040,7 @@ final class Binary implements java.io.Serializable{
         String result = new String();
         int tracker = 1;
         do {
+            assert cOut != null;
             if ((Tools.ArrayUtilsCustom.getElementAt(cOut.length - tracker).in(cOut) == '1' && Tools.ArrayUtilsCustom.getElementAt(c1Out.length - tracker).in(c1Out) == '1')) {
                 //if both characters are equal to '1'
 
@@ -2030,9 +2066,10 @@ final class Binary implements java.io.Serializable{
         char[] c1 = Integer.toString(this.binaryNum).toCharArray();
         Character[] cOut = Tools.Converter.ReferenceTypeConverter.simplifiedToComplexArray(c);
         Character[] c1Out = Tools.Converter.ReferenceTypeConverter.simplifiedToComplexArray(c1);
-        String result = new String();
+        String result = "";
         int tracker = 1;
         do {
+            assert cOut != null;
             if ((Tools.ArrayUtilsCustom.getElementAt(cOut.length - tracker).in(cOut) == '1' && Tools.ArrayUtilsCustom.getElementAt(c1Out.length - tracker).in(c1Out) == '1')) {
                 //if both characters are equal to '1'
 
@@ -2061,6 +2098,7 @@ final class Binary implements java.io.Serializable{
         String result = "";
         int tracker = 1;
         do {
+            assert cOut != null;
             if ((Tools.ArrayUtilsCustom.getElementAt(cOut.length - tracker).in(cOut) == '1' && Tools.ArrayUtilsCustom.getElementAt(c1Out.length - tracker).in(c1Out) == '1')) {
                 //if both characters are equal to '1'
 
