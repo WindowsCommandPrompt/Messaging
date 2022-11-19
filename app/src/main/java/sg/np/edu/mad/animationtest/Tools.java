@@ -1899,19 +1899,15 @@ final class Tools {
                                                             assert resInt.getClass().getName().equals(inputParameterTypes[n].getName()) : String.format("Incompatible types found. Expected %s but found %s", resInt.getClass().getName(), inputParameterTypes[n].getName());
                                                         } catch (Exception ignored7) {
                                                             try {
-                                                                Short resInt = (Short) t;
-                                                            } catch (Exception ignored8) {
+                                                                Boolean resInt = (Boolean) t;
+                                                            } catch (Exception ignored9){
                                                                 try {
-                                                                    Boolean resInt = (Boolean) t;
-                                                                } catch (Exception ignored9){
+                                                                    Float resInt = (Float) t;
+                                                                } catch (Exception ignored10) {
                                                                     try {
-                                                                        Float resInt = (Float) t;
-                                                                    } catch (Exception ignored10) {
-                                                                        try {
-                                                                            Character resInt = (Character) t;
-                                                                        } catch (Exception ignored11) {
+                                                                        Character resInt = (Character) t;
+                                                                    } catch (Exception ignored11) {
 
-                                                                        }
                                                                     }
                                                                 }
                                                             }
@@ -1971,24 +1967,34 @@ final class Binary implements java.io.Serializable{
     @Override
     public boolean equals(final Object o){
         //will only work if 'this' != null
-        return o != null && 0 == this.compareTo(((Supplier<Binary>) () -> {
-            assert o instanceof Binary :
-            String.format(
-                    "Incompatible types. Object of type 'Binary' required but %s was supplied as part of the parameter",
-                    ((Supplier<Class<?>>) () -> {
+        if (o == null) return false;
+        assert o instanceof Binary : String.format(
+            "Incompatible types. Object of type 'Binary' required but %s was supplied as part of the parameter",
+            ((Supplier<Class<?>>) () -> {
+                try {
+                    return ((Character) o).getClass();
+                } catch (Exception ignored){
+                    try {
+                        return ((String) o).getClass();
+                    } catch (Exception ignored1) {
                         try {
-                            return ((String) o).getClass();
-                        } catch (Exception ignored){
+                            return ((Integer) o).getClass();
+                        } catch (Exception ignored2) {
                             try {
-
-                            } catch (Exception ignored1) {
-
+                                return ((Long) o).getClass();
+                            } catch (Exception ignored3) {
+                                try {
+                                    return ((Float) o).getClass();
+                                } catch (Exception ignored4) {
+                                    return ((Double) o).getClass();
+                                }
                             }
                         }
-                    }).get().getName()
-            );  //forced type equality
-            return (Binary) o;
-        }).get());
+                    }
+                }
+            }).get().getName()
+        );  //forced type equality
+        return 0 == this.compareTo((Binary) o);
     }
 
     //this.getBinaryNum() -> left hand side
@@ -2067,7 +2073,6 @@ final class Binary implements java.io.Serializable{
             tracker++; //Add one to the tracker and repeat the whole process again.
         }
         while (cOut.length - tracker >= 0);
-
         return null;
     }
 
