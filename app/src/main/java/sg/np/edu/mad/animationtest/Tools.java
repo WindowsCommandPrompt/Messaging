@@ -2,7 +2,7 @@ package sg.np.edu.mad.animationtest;
 
 import androidx.annotation.NonNull;
 
-import java.lang.annotation.Annotation;
+import java.lang.annotation.*;
 import java.util.*;
 import java.util.function.*;
 
@@ -342,18 +342,40 @@ final class Tools {
             }
         }
 
-        public static <T> boolean allAreBoolean(ArrayList<T> sample){
-            return sample.size() > 1 ? InternalStorage.checksFor(sample, sample.size()) : sample.size() == 0 ? sample.get(0) instanceof Boolean :
+        public static <T> boolean allAreBoolean(final ArrayList<T> sample){
+            return (
+                sample.size() > 1
+                    ? InternalStorage.checksFor(sample, sample.size())
+                    : sample.size() == 0
+                        ? sample.get(0) instanceof Boolean
+                        :
+            );
         }
 
         //Check if every single element within the array list is of type integer
-        public static <T> boolean allAreInteger(ArrayList<T> sample){
-            return false;
+        public static <T> boolean allAreInteger(final ArrayList<T> sample){
+            return (
+
+            );
         }
 
         //Check if every sin
-        public static <T> boolean allAreString(ArrayList<T> sample){
-            return false;
+        public static <T> boolean allAreString(final ArrayList<T> sample){
+            return (
+
+            );
+        }
+
+        public static <T> boolean allAreFloat(final ArrayList<T> sample){
+            return (
+
+            );
+        }
+
+        public static <T> boolean allAreDouble(final ArrayList<T> sample){
+            return (
+
+            );
         }
     }
 
@@ -545,18 +567,25 @@ final class Tools {
                         }
                     }
                 } else {
+                    //when trash plays dota das a big problem.
                     int finalI = i;
                     throw new InvalidObjectDoubleArrayToMapFormatException(String.format(
                         "An entry requires at least 2 elements, but %d was given\nPlease take a look at the element which occurred at main entry number %d\nEntry: {" + (a[finalI].length > 1 ? ((Supplier<String>) () -> {
                             for (Object obj : a[finalI]){ //loop through the items in the array
                                 try {
                                     String res = (String) obj;
+                                    StringBuilder tempTemplate = new StringBuilder();
+                                    tempTemplate.append('\''); //append single quote character at the start
+                                    for (char c : res.toCharArray()){
+                                        tempTemplate.append(c);
+                                    }
+                                    tempTemplate.append('\''); //append single quote character at the end
                                 } catch (Exception ignored){
 
                                 }
                             }
                             return "";
-                        }).get() : "[No items]"), a[i].length, i
+                        }).get() + "}": "[No items]"), a[i].length, i
                     ));
                 }
             }
