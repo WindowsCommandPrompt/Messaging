@@ -1,12 +1,21 @@
 package sg.np.edu.mad.animationtest;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
+import java.io.Serializable;
 import java.lang.annotation.*;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.function.*;
 
 import android.util.Log;
+
+import com.google.common.hash.Funnel;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hasher;
 
 final class Tools {
 
@@ -342,37 +351,57 @@ final class Tools {
             }
         }
 
-        public static <T> boolean allAreBoolean(final ArrayList<T> sample){
+        //check for both 'Boolean' and 'boolean'???
+        public static boolean allAreBoolean(@NonNull final Optional<ArrayList<Object>> list1, @NonNull final Optional<ArrayList<Serializable>> list2){
             return (
-                sample.size() > 1
-                    ? InternalStorage.checksFor(sample, sample.size())
-                    : sample.size() == 0
-                        ? sample.get(0) instanceof Boolean
+                list1.get().size() > 1
+                    ? InternalStorage.checksFor(list1.get(), list1.get().size())
+                    : list1.get().size() == 0
+                        ? list1.get().get(0) instanceof Boolean
                         :
             );
         }
 
-        //Check if every single element within the array list is of type integer
-        public static <T> boolean allAreInteger(final ArrayList<T> sample){
+        //Check if every single element within the array list is of type Integer or int
+        public static boolean allAreInteger(@NonNull final Optional<ArrayList<Object>> list1, @NonNull final Optional<ArrayList<Serializable>> list2){
+            //Check for whether list1 or list2 are null and if they are present.
             return (
 
             );
         }
 
-        //Check if every sin
-        public static <T> boolean allAreString(final ArrayList<T> sample){
+        //Check if every single element within the array list is of type String
+        public static boolean allAreString(@NonNull final Optional<ArrayList<Object>> list1, @NonNull final Optional<ArrayList<Serializable>> list2){
+            //Check for whether list1 or list2 are null and if they are present.
             return (
 
             );
         }
 
-        public static <T> boolean allAreFloat(final ArrayList<T> sample){
+        //Check if every single element within the array list is of typ Float or float
+        public static boolean allAreFloat(@NonNull final Optional<ArrayList<Object>> list1, @NonNull final Optional<ArrayList<Serializable>> list2){
+            //Check for whether list1 or list2 are null and if they are present.
             return (
 
             );
         }
 
-        public static <T> boolean allAreDouble(final ArrayList<T> sample){
+        public static boolean allAreDouble(@NonNull final Optional<ArrayList<Object>> list1, @NonNull final Optional<ArrayList<Serializable>> list2){
+            //Check for whether list1 or list2 are null and if they are present.
+            return (
+
+            );
+        }
+
+        public static boolean allAreLong(@NonNull final Optional<ArrayList<Object>> list1, @NonNull final Optional<ArrayList<Serializable>> list2){
+            //Check for whether list1 or list2 are null and if they are present.
+            return (
+
+            );
+        }
+
+        public static boolean allAreShort(@NonNull final Optional<ArrayList<Object>> list1, @NonNull final Optional<ArrayList<Serializable>> list2){
+            //Check for whether list1 or list2 are null and if they are present.
             return (
 
             );
