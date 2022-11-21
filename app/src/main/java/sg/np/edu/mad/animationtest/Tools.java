@@ -365,46 +365,114 @@ final class Tools {
         //Check if every single element within the array list is of type Integer or int
         public static boolean allAreInteger(@NonNull final Optional<ArrayList<Object>> list1, @NonNull final Optional<ArrayList<Serializable>> list2){
             //Check for whether list1 or list2 are null and if they are present.
-            return (
-
-            );
+            if (list1.isPresent() || list2.isPresent()){
+                if (list1.isPresent()){
+                    for (Object o : list1.get()){
+                        if (!(o instanceof Integer)){
+                            return false;
+                        }
+                    }
+                } else {
+                    for (Serializable s : list2.get()){
+                        if (!(s instanceof Integer)){
+                            return false;
+                        }
+                    }
+                }
+            } else { //if both not present
+                throw new IllegalArgumentException(String.format("Argument 1 was supplied as %s, while argument 2 was supplied as %s. Unable to perform check on whether all elements contain \"Integer\"", list1, list2));
+            }
+            return true;
         }
 
         //Check if every single element within the array list is of type String
         public static boolean allAreString(@NonNull final Optional<ArrayList<Object>> list1, @NonNull final Optional<ArrayList<Serializable>> list2){
             //Check for whether list1 or list2 are null and if they are present.
-            return (
-
-            );
+            if (list1.isPresent() || list2.isPresent()){
+                if (list1.isPresent()){
+                    for (Object o : list1.get()){
+                        if (!(o instanceof Integer)){
+                            return false;
+                        }
+                    }
+                } else {
+                    for (Serializable s : list2.get()){
+                        if (!(s instanceof Integer)){
+                            return false;
+                        }
+                    }
+                }
+            } else { //if both not present
+                throw new IllegalArgumentException(String.format("Argument 1 was supplied as %s, while argument 2 was supplied as %s. Unable to perform check on whether all elements contain \"Boolean\"", list1, list2));
+            }
+            return true;
         }
 
         //Check if every single element within the array list is of typ Float or float
         public static boolean allAreFloat(@NonNull final Optional<ArrayList<Object>> list1, @NonNull final Optional<ArrayList<Serializable>> list2){
             //Check for whether list1 or list2 are null and if they are present.
-            return (
-
-            );
+            if (list1.isPresent() || list2.isPresent()){
+                if (list1.isPresent()){
+                    for (Object o : list1.get()){
+                        if (!(o instanceof Integer)){
+                            return false;
+                        }
+                    }
+                } else {
+                    for (Serializable s : list2.get()){
+                        if (!(s instanceof Integer)){
+                            return false;
+                        }
+                    }
+                }
+            } else { //if both not present
+                throw new IllegalArgumentException(String.format("Argument 1 was supplied as %s, while argument 2 was supplied as %s. Unable to perform check on whether all elements contain \"Float\"", list1, list2));
+            }
+            return true;
         }
 
         public static boolean allAreDouble(@NonNull final Optional<ArrayList<Object>> list1, @NonNull final Optional<ArrayList<Serializable>> list2){
             //Check for whether list1 or list2 are null and if they are present.
-            return (
-
-            );
+            if (list1.isPresent() || list2.isPresent()){
+                if (list1.isPresent()){
+                    for (Object o : list1.get()){
+                        if (!(o instanceof Integer)){
+                            return false;
+                        }
+                    }
+                } else {
+                    for (Serializable s : list2.get()){
+                        if (!(s instanceof Integer)){
+                            return false;
+                        }
+                    }
+                }
+            } else { //if both not present
+                throw new IllegalArgumentException(String.format("Argument 1 was supplied as %s, while argument 2 was supplied as %s. Unable to perform check on whether all elements contain \"Double\"", list1, list2));
+            }
+            return true;
         }
 
         public static boolean allAreLong(@NonNull final Optional<ArrayList<Object>> list1, @NonNull final Optional<ArrayList<Serializable>> list2){
             //Check for whether list1 or list2 are null and if they are present.
-            return (
-
-            );
-        }
-
-        public static boolean allAreShort(@NonNull final Optional<ArrayList<Object>> list1, @NonNull final Optional<ArrayList<Serializable>> list2){
-            //Check for whether list1 or list2 are null and if they are present.
-            return (
-
-            );
+            if (list1.isPresent() || list2.isPresent()){
+                if (list1.isPresent()){
+                    for (Object o : list1.get()){
+                        if (!(o instanceof Integer)){
+                            return false;
+                        }
+                    }
+                } else {
+                    for (Serializable s : list2.get()){
+                        if (!(s instanceof Integer)){
+                            return false;
+                        }
+                    }
+                }
+            } else { //if both not present
+                throw new IllegalArgumentException("");
+            }
+            return true;
         }
     }
 
@@ -458,6 +526,7 @@ final class Tools {
             String translate = "{";
             String starter = ""; String ender = "";
             ArrayList<Object> checker = new ArrayList<>();
+            Object hashMapValueForwarder = null;
             for (int i = 0; i < a.length; i++){   //i is responsible for entry number
                 //a[i].length is strictly 2! (Check for length over here...
                 if (a[i].length == 2) {
@@ -505,93 +574,139 @@ final class Tools {
                                     }
                                 }
                             }
-                            //all test pass then carry on with the conversion
-                            HashMap<TypeIdentifierUtil.ItemPosition, TypeIdentifierUtil.ItemDataType> dataTypes = new HashMap<>();
-                            //focus on the values first
+                        }
+                        //all test pass then carry on with the conversion
+                        HashMap<TypeIdentifierUtil.ItemPosition, TypeIdentifierUtil.ItemDataType> dataTypes = new HashMap<>();
+                        //focus on the values first
+                        try {
+                            String testResult = (String) a[i][1];
+                            //check if the datatypes can be stored as a character
+                            dataTypes.put(
+                                new TypeIdentifierUtil.ItemPosition(i), testResult.length() == 1
+                                    ? new TypeIdentifierUtil.ItemDataType("Character")
+                                    : new TypeIdentifierUtil.ItemDataType("String")
+                            );
+                        } catch (Exception e1) {
                             try {
-                                String testResult = (String) a[i][1];
-                                //check if the datatypes can be stored as a character
-                                dataTypes.put(new TypeIdentifierUtil.ItemPosition(i), testResult.length() == 1 ? new TypeIdentifierUtil.ItemDataType("Character") : new TypeIdentifierUtil.ItemDataType("String"));
-                            } catch (Exception e1) {
+                                double testResult = (Double) a[i][1];
+                                //Before concluding that the datatype can be stored as a double check if it can be stored as a float or some sort
+                                dataTypes.put(
+                                    new TypeIdentifierUtil.ItemPosition(i), testResult > Float.MAX_VALUE
+                                        ? new TypeIdentifierUtil.ItemDataType("Double")
+                                        : new TypeIdentifierUtil.ItemDataType("Float")
+                                );
+                            } catch (Exception e2) {
                                 try {
-                                    double testResult = (Double) a[i][1];
-                                    //Before concluding that the datatype can be stored as a double check if it can be stored as a float or some sort
-                                    dataTypes.put(new TypeIdentifierUtil.ItemPosition(i), testResult > Float.MAX_VALUE ? new TypeIdentifierUtil.ItemDataType("Double") : new TypeIdentifierUtil.ItemDataType("Float"));
-                                } catch (Exception e2) {
+                                    long testResult = (Long) a[i][1];
+                                    dataTypes.put(new TypeIdentifierUtil.ItemPosition(i), testResult > Integer.MAX_VALUE || testResult < Integer.MIN_VALUE
+                                        ? new TypeIdentifierUtil.ItemDataType("Long") : testResult > Short.MAX_VALUE || testResult < Short.MIN_VALUE
+                                            ? new TypeIdentifierUtil.ItemDataType("Integer")
+                                            : testResult > Byte.MAX_VALUE || testResult < Byte.MIN_VALUE
+                                                ? new TypeIdentifierUtil.ItemDataType("Integer")
+                                                : new TypeIdentifierUtil.ItemDataType("Byte")
+                                    );
+                                } catch (Exception e3) {
+                                    //Check for whether the key can be casted into a List<T>
                                     try {
-                                        long testResult = (Long) a[i][1];
-                                        dataTypes.put(new TypeIdentifierUtil.ItemPosition(i), testResult > Integer.MAX_VALUE || testResult < Integer.MIN_VALUE ? new TypeIdentifierUtil.ItemDataType("Long") : testResult > Short.MAX_VALUE || testResult < Short.MIN_VALUE ? new TypeIdentifierUtil.ItemDataType("Integer") : testResult > Byte.MAX_VALUE || testResult < Byte.MIN_VALUE ? new TypeIdentifierUtil.ItemDataType("Integer") : new TypeIdentifierUtil.ItemDataType("Byte"));
-                                    } catch (Exception e3) {
-                                        //Check for whether the key can be casted into a List<T>
-                                        try {
-                                            List<?> result = (List<?>) a[i][1]; //if the thing can be casted into a list, internal item datatype still unknown so we will have to use the wildcard symbol '?'
-                                            String[] dataTypeRecord = new String[result.size()];   //create an array of strings which stores the datatype
-                                            for (int k = 0; k < result.size(); ++k) {
-                                                if (result.get(k).toString().equals("true") || result.get(k).toString().equals("false")) {
-                                                    dataTypeRecord[k] = "Boolean";
-                                                }
-                                                if (result.get(k).toString().length() == 1) {  //might be '0' as a char or 0 as an int
-                                                    //Check for whether it is an integer
-                                                    try {
-                                                        int num = (int) result.get(k);
-                                                        dataTypeRecord[k] = "Integer";
-                                                    } catch (Exception e3a) {
-                                                        //if element cannot be casted to an integer then it must be a character
-                                                        dataTypeRecord[k] = "Character";
-                                                    }
-                                                }
-                                                if (result.get(k).toString().length() >= 2) {
-                                                    //minimum lengths of all doubles when converted into a string is 3.
-                                                    if (result.get(k).toString().contains(".") && result.get(j).toString().length() >= 3 && new StringAddOn(result.get(j).toString()).getStringBefore(".").length() > 1) {
-                                                        dataTypeRecord[k] = (double) result.get(j) > Float.MAX_VALUE ? "Double" : "Float";
-                                                    } else {
-                                                        dataTypeRecord[k] = "String"; //if does not fulfil condition then
-                                                    }
-                                                }
-                                                //check if there is like a potential nested object[][] inside of the arraylist
-                                                if (result.get(k).getClass().toString().startsWith("[[")) {
-                                                    dataTypeRecord[k] = "Map";
+                                        //CHECKING THE DATATYPES OF VALUES ONLY!!!!!
+                                        List<?> result = (List<?>) a[i][1]; //if the thing can be casted into a list, internal item datatype still unknown so we will have to use the wildcard symbol '?'
+                                        String[] dataTypeRecord = new String[result.size()];   //create an array of strings which stores the datatype
+                                        for (int k = 0; k < result.size(); ++k) {
+                                            if (result.get(k).toString().equals("true") || result.get(k).toString().equals("false")) {
+                                                dataTypeRecord[k] = "Boolean";  //assign Boolean
+                                            }
+                                            if (result.get(k).toString().length() == 1) {  //might be '0' as a char or 0 as an int
+                                                //Check for whether it is an integer
+                                                try {
+                                                    int num = (int) result.get(k);
+                                                    dataTypeRecord[k] = "Integer";
+                                                } catch (Exception e3a) {
+                                                    //if element cannot be casted to an integer then it must be a character
+                                                    dataTypeRecord[k] = "Character";
                                                 }
                                             }
-                                            if (Objects.requireNonNull(findIndexesOfElement("String").in(dataTypeRecord).get("String")).size() == dataTypeRecord.length) {
-                                                ArrayList<String> copyOverList = new ArrayList<>();
-                                                //copy contents from variable named results
-                                                for (int k = 0; k < result.size(); k++) {
-                                                    copyOverList.add((String) result.get(k));
+                                            //assuming that result is a List over here....
+                                            if (result.get(k).toString().length() >= 2) {
+                                                //minimum lengths of all doubles when converted into a string is 3.
+                                                if (result.get(k).toString().contains(".") && result.get(j).toString().length() >= 3 && new StringAddOn(result.get(j).toString()).getStringBefore(".").length() > 1) {
+                                                    dataTypeRecord[k] = (double) result.get(j) > Float.MAX_VALUE ? "Double" : "Float";
+                                                } else {
+                                                    dataTypeRecord[k] = "String"; //if does not fulfil condition then add String into dataType record
                                                 }
-                                            } else if (Objects.requireNonNull(findIndexesOfElement("Integer").in(dataTypeRecord).get("Integer")).size() == dataTypeRecord.length) {
-                                                ArrayList<Integer> copyOverList = new ArrayList<>();
-                                                for (int k = 0; k < result.size(); k++) {
-                                                    copyOverList.add((Integer) result.get(k));
-                                                }
-                                            } else if (Objects.requireNonNull(findIndexesOfElement("Boolean").in(dataTypeRecord).get("Boolean")).size() == dataTypeRecord.length) {
-                                                ArrayList<Boolean> copyOverList = new ArrayList<>();
-                                                for (int k = 0; k < result.size(); k++) {
-                                                    copyOverList.add((Boolean) result.get(k));
-                                                }
-                                            } else if (Objects.requireNonNull(findIndexesOfElement("Character").in(dataTypeRecord).get("Character")).size() == dataTypeRecord.length) {
-                                                ArrayList<Character> copyOverList = new ArrayList<>();
-                                                for (int k = 0; k < result.size(); k++) {
-                                                    copyOverList.add((Character) result.get(k));
-                                                }
-                                            } else if (Objects.requireNonNull(findIndexesOfElement("Float").in(dataTypeRecord).get("Float")).size() == dataTypeRecord.length) {
-                                                ArrayList<Float> copyOverList = new ArrayList<>();
-                                                for (int k = 0; k < result.size(); k++) {
-                                                    copyOverList.add((Float) result.get(k));
-                                                }
-                                            } else if (Objects.requireNonNull(findIndexesOfElement("Double").in(dataTypeRecord).get("Double")).size() == dataTypeRecord.length) {
-                                                ArrayList<Double> copyOverList = new ArrayList<>();
-                                                for (int k = 0; k < result.size(); k++) {
-                                                    copyOverList.add((Double) result.get(k));
-                                                }
-                                            } else if (Objects.requireNonNull(findIndexesOfElement("Map").in(dataTypeRecord).get("Map")).size() == dataTypeRecord.length) {   //if string is "Map"
-                                                ArrayList<Object> copyOverList = new ArrayList<>();
                                             }
-                                        } catch (Exception e4) {
-                                            //if the thing is not
+                                            //check if there is like a potential nested object[][] inside of the arraylist
+                                            if (result.get(k).getClass().toString().startsWith("[[")) {
+                                                dataTypeRecord[k] = "Map";
+                                            }
                                         }
+                                        //once the dataypes in the Object[][] is recorded, time to do processing.
+                                        //dataTypeRecord is an Array object that stores the datatypes of all the entries in a List as a String
+                                        //result is the List itself
+                                        if (Objects.requireNonNull(findIndexesOfElement("String").in(dataTypeRecord).get("String")).size() == dataTypeRecord.length) {
+                                            ArrayList<String> copyOverList = new ArrayList<>();
+                                            //copy contents from variable named results
+                                            //dataTypeRecord is responsible for keeping track of the datatypes that are stored within Object[][]
+                                            for (int k = 0; k < result.size(); k++) {
+                                                copyOverList.add((String) result.get(k)); //copy data over to a new ArrayList, casting the value to a String
+                                            }
+                                            hashMapValueForwarder = copyOverList;
+                                        } else if (Objects.requireNonNull(findIndexesOfElement("Integer").in(dataTypeRecord).get("Integer")).size() == dataTypeRecord.length) {
+                                            ArrayList<Integer> copyOverList = new ArrayList<>();
+                                            //dataTypeRecord is responsible for keeping track of the datatypes that are stored within Object[][]
+                                            for (int k = 0; k < result.size(); k++) {
+                                                copyOverList.add((Integer) result.get(k)); //copy data over to a new ArrayList, casting the value to an Integer
+                                            }
+                                            hashMapValueForwarder = copyOverList;
+                                        } else if (Objects.requireNonNull(findIndexesOfElement("Boolean").in(dataTypeRecord).get("Boolean")).size() == dataTypeRecord.length) {
+                                            ArrayList<Boolean> copyOverList = new ArrayList<>();
+                                            //dataTypeRecord is responsible for keeping track of the datatypes that are stored within Object[][]
+                                            for (int k = 0; k < result.size(); k++) {
+                                                copyOverList.add((Boolean) result.get(k)); //copy data over to a new ArrayList, casting the value to a Boolean
+                                            }
+                                            hashMapValueForwarder = copyOverList;
+                                        } else if (Objects.requireNonNull(findIndexesOfElement("Character").in(dataTypeRecord).get("Character")).size() == dataTypeRecord.length) {
+                                            ArrayList<Character> copyOverList = new ArrayList<>();
+                                            //dataTypeRecord is responsible for keeping track of the datatypes that are stored within Object[][]
+                                            for (int k = 0; k < result.size(); k++) {
+                                                copyOverList.add((Character) result.get(k));
+                                            }
+                                            hashMapValueForwarder = copyOverList;
+                                        } else if (Objects.requireNonNull(findIndexesOfElement("Float").in(dataTypeRecord).get("Float")).size() == dataTypeRecord.length) {
+                                            ArrayList<Float> copyOverList = new ArrayList<>();
+                                            //dataTypeRecord is responsible for keeping track of the datatypes that are stored within Object[][]
+                                            for (int k = 0; k < result.size(); k++) {
+                                                copyOverList.add((Float) result.get(k));
+                                            }
+                                            hashMapValueForwarder = copyOverList;
+                                        } else if (Objects.requireNonNull(findIndexesOfElement("Double").in(dataTypeRecord).get("Double")).size() == dataTypeRecord.length) {
+                                            ArrayList<Double> copyOverList = new ArrayList<>();
+                                            //dataTypeRecord is responsible for keeping track of the datatypes that are stored within Object[][]
+                                            for (int k = 0; k < result.size(); k++) {
+                                                copyOverList.add((Double) result.get(k));
+                                            }
+                                            hashMapValueForwarder = copyOverList;
+                                        } else if (Objects.requireNonNull(findIndexesOfElement("Map").in(dataTypeRecord).get("Map")).size() == dataTypeRecord.length) {   //if string is "Map"
+                                            ArrayList<Object> copyOverList = new ArrayList<>();
+                                        }
+                                    } catch (Exception e4) {
+                                        //if the thing is not
                                     }
                                 }
+                            }
+                        }
+                        Log.i("VALUESANALYZECOMPLETE", "Successfully analyzed the values within Object[][]. Checking datatype of keys");
+                        //Once we have finished checking the values, we will now check the datatype keys
+                        dataTypes = new HashMap<>(); //initialize the hashmap, assign it to a new, fresh hashmap
+                        try {
+                            String key = (String) a[i][0];
+                            //check for whether the datatypes can be stored as character??
+                            dataTypes.put(new TypeIdentifierUtil.ItemPosition(i), key.length() == 1 ? new TypeIdentifierUtil.ItemDataType("Character") : new TypeIdentifierUtil.ItemDataType("String"));
+                        } catch (Exception ignored){
+                            //if cannot be casted into String, try casting it to a double first....
+                            try {
+                                double key = (double) a[i][0];
+                            } catch (Exception ignored1) {
+
                             }
                         }
                     }
@@ -2223,4 +2338,3 @@ final class Binary implements java.io.Serializable{
         return null;
     }
 }
-
