@@ -1,6 +1,13 @@
 package sg.np.edu.mad.animationtest;
 
-import java.lang.Throwable;
+
+final class InvalidHemisphere extends Exception {
+    private String msg;
+
+    public InvalidHemisphere(String msg) { this.msg = msg; }
+
+    public InvalidHemisphere() { }
+}
 
 final class InvalidBinaryNumberFormat extends Exception {
     private String msg;
@@ -8,6 +15,8 @@ final class InvalidBinaryNumberFormat extends Exception {
     public InvalidBinaryNumberFormat (String msg){
         this.msg = msg;
     }
+
+    public InvalidBinaryNumberFormat() { }
 }
 
 

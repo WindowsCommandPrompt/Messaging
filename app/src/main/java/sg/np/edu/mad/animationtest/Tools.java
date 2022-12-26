@@ -1,26 +1,304 @@
 package sg.np.edu.mad.animationtest;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.io.Serializable;
 import java.lang.annotation.*;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.*;
 import java.util.function.*;
 
+import android.location.Geocoder;
 import android.util.Log;
 
-import com.google.common.hash.Funnel;
-import com.google.common.hash.HashCode;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hasher;
+import com.google.mlkit.common.sdkinternal.Cleaner;
 
 final class Tools {
 
-    private Tools(){
+    //Converting
+    public static final class Coordinates {
 
+        public static final class Latitude{
+            private int deg;
+            private int minutes;
+            private double seconds;
+            private char hemisphere;
+
+            public enum MajorLatitudes{
+                EQUATOR(new Latitude(0, 0, 0)),
+                NORTH_POLE(new Latitude(90, 0, 0)),
+                TROPIC_OF_CANCER(new Latitude(-90, 0, 0)),
+                TROPIC_OF_CAPRICORN(new Latitude(23, 26, 22)),
+                ARCTIC_CIRCLE(new Latitude(66, 33, 49.3)),
+                ANTARCTIC_CIRCLE(new Latitude(-66, 33, 49.3));
+
+                private Latitude type;
+
+                public Latitude getType(){
+                    return this.type;
+                }
+
+                private MajorLatitudes(Latitude lat){
+                    this.type = lat;
+                }
+            }
+
+            public Latitude(int latDeg, int latMinutes, double latSeconds, char hemisphere) throws InvalidHemisphere {
+                this.deg = latDeg >= 0 && latDeg <= 90
+                        ? latDeg
+                        : latDeg % 90;
+                this.minutes = latMinutes >= 0 && latMinutes <= 60
+                        ? latMinutes
+                        : latMinutes % 60;
+                this.seconds = latSeconds >= 0 && latSeconds <= 60
+                        ? latSeconds
+                        : latSeconds % 60;
+                //Check if deg, minutes and seconds are equal to 0. (equator)
+                this.hemisphere =
+                        latDeg == 0 && latSeconds == 0 && latMinutes == 0 && hemisphere != 'c' && hemisphere != 'C'
+                                ? '\u0000'
+                                : (latDeg >= 0 || latSeconds >= 0 || latMinutes >= 0) && (hemisphere == 'N' || hemisphere == 'S')
+                                ? hemisphere
+                                : latDeg == 0 && latSeconds == 0 && latMinutes == 0 && (hemisphere == 'c' || hemisphere == 'C')
+                                ? hemisphere
+                                : '\u0000';
+                if (this.hemisphere == '\u0000') {
+                    //this = new Coordinates(...);
+                    Cleaner.create().register(this, () -> System.out.println("Destroying....")).clean();
+                    throw new InvalidHemisphere("Invalid coordinates. The object is not created");
+                }
+            }
+
+            //bearing based latitude constructor
+            public Latitude(int latDegBearing, int latMinutesBearing, double latSecondsBearing) {
+                //-90 south pole    90 north pole
+                this.deg = latDegBearing >= -90 && latDegBearing <= 90 ? latDegBearing : latDegBearing % 90;
+                this.minutes = latMinutesBearing >= 0 && latMinutesBearing <= 60 ? latMinutesBearing : latMinutesBearing % 60;
+                this.seconds = latSecondsBearing >= 0 && latSecondsBearing <= 60 ? latSecondsBearing : latSecondsBearing % 60;
+            }
+
+            @Override
+            public boolean equals(final Object other){
+                return (
+                    this.hemisphere == '\u0000'
+                        ? ((Function<Object, Boolean>) x -> {
+                            if (x instanceof Latitude){ //acts as a null filter for other
+                                Latitude lat = (Latitude) other;
+                                return lat.hemisphere == '\u0000'
+                                        ? this.deg == lat.deg && this.minutes == lat.minutes && this.seconds == lat.seconds
+                                        : this.deg == lat.deg && this.minutes == lat.minutes && this.seconds == lat.seconds && this.hemisphere == lat.hemisphere;
+                            }
+                            return false;
+                        }).apply(other)
+                        : ((Function<Object, Boolean>) x -> { //this.hemisphere != '\u0000'
+                            if (x instanceof Latitude){ //already acts a null filter for other
+                                Latitude lat = (Latitude) other;
+                                return lat.hemisphere == '\u0000';
+                            }
+                            return false;
+                        }).apply(other)
+                );
+            }
+
+            //return the latitude in a string
+            @Override
+            public String toString(){
+                if (this.hemisphere != '\u0000'){ //no hemisphere means using bearings
+                    return String.format("Latitude: ");
+                } else {
+                    return String.format("Latitude: ");
+                }
+            }
+        }
+
+        public static final class Longitude {
+            private int deg;
+            private int minutes;
+            private double seconds;
+            private char hemisphere;
+
+            public enum MajorLongitudes{
+
+                INTERNATIONAL_DATE_LINE(new Longitude(180, 0, 0)),
+                PRIME_MERIDIAN(new Longitude(0, 0, 0));
+
+                private Longitude type;
+
+                public Longitude getType() {
+                    return this.type;
+                }
+
+                private MajorLongitudes(Longitude lng){
+                    this.type = lng;
+                }
+            }
+
+            public Longitude(int longDeg, int longMinutes, double longSeconds, char hemisphere) throws InvalidHemisphere {
+                this.deg = longDeg >= 0 && longDeg <= 180 ? longDeg : longDeg % 180;
+                this.minutes = longMinutes >= 0 && longMinutes <= 60
+                        ? longMinutes
+                        : longMinutes % 180;
+                this.seconds = longSeconds >= 0 && longSeconds <= 60
+                        ? longSeconds
+                        : longSeconds % 180;
+                this.hemisphere =
+                        longDeg == 0 && longSeconds == 0 && longMinutes == 0 && hemisphere != 'c' && hemisphere != 'C'
+                                ? '\u0000'
+                                : (longDeg >= 0 || longSeconds >= 0 || longMinutes >= 0) && (hemisphere == 'E' || hemisphere == 'W')
+                                ? hemisphere
+                                : longDeg == 0 && longSeconds == 0 && longMinutes == 0 && (hemisphere == 'c' || hemisphere == 'C')
+                                ? hemisphere
+                                : '\u0000';
+                if (this.hemisphere == '\u0000') {
+                    Cleaner.create().register(this, () -> System.out.println("Destroying....")).clean();
+                    throw new InvalidHemisphere("Invalid coordinates. Object is not created");
+                }
+            }
+
+            public Longitude(int longDegBearing, int longMinutesBearing, double longSecondsBearing) {
+                //180 international date line      0 gmt
+                //range -179 to 180
+                this.deg = longDegBearing >= -179 && longDegBearing <= 180 ? longDegBearing : longDegBearing % 180;
+                this.minutes = longMinutesBearing >= 0 && longMinutesBearing <= 60 ? longMinutesBearing : longMinutesBearing % 60;
+                this.seconds = longSecondsBearing >= 0 && longSecondsBearing <= 60 ? longSecondsBearing : longSecondsBearing % 60;
+            }
+
+            @Override
+            public String toString(){
+                StringBuilder out = new StringBuilder();
+
+                return out.toString();
+            }
+        }
+
+        public enum CoordinateInitializer {
+            LATLNGINITIALIZEDATEQUATOR(1),
+            BEARINGINITIALIZEDATEQUATOR(2),
+            BLANK(3),
+            HEMISPHERICINITIALIZEDATEQUATOR(4);
+
+            private int mode;
+
+            public int mode(){
+                return this.mode;
+            }
+
+            private CoordinateInitializer(int mode){
+                this.mode = mode;
+            }
+        }
+
+        private int deg;
+        private int minutes;
+        private double seconds;
+        private char hemisphere;
+        private int longDeg;
+        private int longMinutes;
+        private double longSeconds;
+        private char hhemisphere;
+
+        public Coordinates(Latitude lat, Longitude lng) {
+            this.deg = lat.deg;
+            this.minutes = lat.minutes;
+            this.seconds = lat.seconds;
+            this.hemisphere = lat.hemisphere;
+            this.longDeg = lng.deg;
+            this.longMinutes = lng.minutes;
+            this.longSeconds = lng.seconds;
+            this.hhemisphere = lng.hemisphere;
+        }
+
+        public Coordinates(int latDeg , int latMinutes,  double latSeconds,  char hemisphere,
+                           int longDeg, int longMinutes, double longSeconds, char hhemisphere
+        ) throws InvalidHemisphere {
+            this.deg = latDeg >= 0 && latDeg <= 90
+                    ? latDeg
+                    : latDeg % 90;
+            this.minutes = latMinutes >= 0 && latMinutes <= 60
+                    ? latMinutes
+                    : latMinutes % 60;
+            this.seconds = latSeconds >= 0 && latSeconds <= 60
+                    ? latSeconds
+                    : latSeconds % 60;
+            //Check if deg, minutes and seconds are equal to 0. (equator)
+            this.hemisphere =
+                    latDeg == 0 && latSeconds == 0 && latMinutes == 0 && hemisphere != 'c' && hemisphere != 'C'
+                            ? '\u0000'
+                            : (latDeg >= 0 || latSeconds >= 0 || latMinutes >= 0) && (hemisphere == 'N' || hemisphere == 'S')
+                            ? hemisphere
+                            : latDeg == 0 && latSeconds == 0 && latMinutes == 0 && (hemisphere == 'c' || hemisphere == 'C')
+                            ? hemisphere
+                            : '\u0000';
+            if (this.hemisphere == '\u0000') {
+                //this = new Coordinates(...);
+                Cleaner.create().register(this, () -> System.out.println("Destroying....")).clean();
+                throw new InvalidHemisphere("Invalid coordinates. The object is not created");
+            }
+            this.longDeg = longDeg >= 0 && longDeg <= 90 ? longDeg : longDeg % 90;
+            this.longMinutes = longMinutes >= 0 && longMinutes <= 60
+                    ? longMinutes
+                    : longMinutes % 180;
+            this.longSeconds = longSeconds >= 0 && longSeconds <= 60
+                    ? longSeconds
+                    : longSeconds % 180;
+            this.hhemisphere =
+                    longDeg == 0 && longSeconds == 0 && longMinutes == 0 && hhemisphere != 'c' && hhemisphere != 'C'
+                            ? '\u0000'
+                            : (longDeg >= 0 || longSeconds >= 0 || longMinutes >= 0) && (hhemisphere == 'E' || hhemisphere == 'W')
+                            ? hhemisphere
+                            : longDeg == 0 && longSeconds == 0 && longMinutes == 0 && (hhemisphere == 'c' || hhemisphere == 'C')
+                            ? hhemisphere
+                            : '\u0000';
+            if (this.hhemisphere == '\u0000') {
+                Cleaner.create().register(this, () -> System.out.println("Destroying....")).clean();
+                throw new InvalidHemisphere("Invalid coordinates. Object is not created");
+            }
+        }
+
+        //Bearing based coordinates
+        //dont need hemisphere declaration over here
+        public Coordinates(int latDeg, int latMinutes, double latSeconds,
+                           int longDeg, int longMinutes, double longSeconds
+        ){
+            //-90 south pole    90 north pole
+            this.deg = latDeg >= -90 && latDeg <= 90 ? latDeg : latDeg % 90;
+            this.minutes = latMinutes >= 0 && latMinutes <= 60 ? latMinutes : latMinutes % 60;
+            this.seconds = latSeconds >= 0 && latSeconds <= 60 ? latSeconds : latSeconds % 60;
+            //180 international date line      0 gmt
+            //range -179 to 180
+            this.longDeg = longDeg >= -179 && longDeg <= 180 ? longDeg : longDeg % 180;
+            this.longMinutes = longMinutes >= 0 && longMinutes <= 60 ? longMinutes : longMinutes % 60;
+            this.longSeconds = longSeconds >= 0 && longSeconds <= 60 ? longSeconds : longSeconds % 60;
+        }
+
+        public Coordinates(){ }
+
+        //A shorthand constructor to quickly initialize coordinates.
+        public Coordinates(int mode) throws InvalidHemisphere{
+            if (mode == 1){
+                new Coordinates(Latitude.MajorLatitudes.EQUATOR.getType(), Longitude.MajorLongitudes.PRIME_MERIDIAN.getType());
+            } else if (mode == 2) {
+                new Coordinates(0, 0, 0, 0, 0, 0);
+            } else if (mode == 3) {
+                new Coordinates();
+            } else if (mode == 4) {
+                new Coordinates(0, 0, 0, 'c', 0, 0, 0, 'c');
+            }
+        }
+
+        @Override
+        public String toString(){
+            StringBuilder out = new StringBuilder();
+            String[] temp = String.format("Latitude: %d°%d'%.4f\"%c\nLongitude: %d°%d'%.4f\"%c", this.deg, this.minutes, this.seconds, this.hemisphere, this.longDeg, this.longMinutes, this.longSeconds, this.hhemisphere).split("\n");
+            for (String t : temp){
+                if (t.contains("c") || t.contains("C")){
+                    out.append(t, 0, t.length() - 1).append(t.startsWith("Latitude") ? '\n' : "");
+                }
+                else {
+                    out.append(t, 0, t.length()).append(t.startsWith("Latitude") ? '\n' : "");
+                }
+            }
+            return out.toString();
+        }
     }
 
     //Creating a parsed map
@@ -75,6 +353,14 @@ final class Tools {
 
             public void setValue(V value){
                 this.value = value;
+            }
+        }
+
+        public ParsedMap(int mapInitializerType, char mapInitializerClass) throws ValueLessThanOrEqualsZeroException {
+            if (mapInitializerType == 1 && (mapInitializerClass == 'a' || mapInitializerClass == 'A')){
+                new ParsedMap<>(Long.MAX_VALUE, false);
+            } else if (mapInitializerType == 1 && (mapInitializerClass == 'b' || mapInitializerClass == 'B')) {
+
             }
         }
 
@@ -479,10 +765,6 @@ final class Tools {
     @SuppressWarnings({"JavaReflectionMemberAccess", "unchecked"})
     public static final class ArrayUtilsCustom{   //unfortunately you cannot extend the 'Arrays' class because the constructor is private
 
-        private ArrayUtilsCustom(){
-
-        }
-
         //HashMap<?, ?> ???
         public static <K, V> ParsedMap<K, V> arrayToParseMap(@NonNull Object[][] a) throws NotAnArrayException, ContentsNotPrimitiveException, InvalidObjectDoubleArrayToMapFormatException{
             /*
@@ -642,7 +924,7 @@ final class Tools {
                                         //once the dataypes in the Object[][] is recorded, time to do processing.
                                         //dataTypeRecord is an Array object that stores the datatypes of all the entries in a List as a String
                                         //result is the List itself
-                                        if (Objects.requireNonNull(findIndexesOfElement("String").in(dataTypeRecord).get("String")).size() == dataTypeRecord.length) {
+                                        if (Objects.requireNonNull(findIndexesOfElement("String").in(dataTypeRecord).get("String"), "Item cannot be null under this context").size() == dataTypeRecord.length) {
                                             ArrayList<String> copyOverList = new ArrayList<>();
                                             //copy contents from variable named results
                                             //dataTypeRecord is responsible for keeping track of the datatypes that are stored within Object[][]
@@ -650,42 +932,42 @@ final class Tools {
                                                 copyOverList.add((String) result.get(k)); //copy data over to a new ArrayList, casting the value to a String
                                             }
                                             hashMapValueForwarder = copyOverList;
-                                        } else if (Objects.requireNonNull(findIndexesOfElement("Integer").in(dataTypeRecord).get("Integer")).size() == dataTypeRecord.length) {
+                                        } else if (Objects.requireNonNull(findIndexesOfElement("Integer").in(dataTypeRecord).get("Integer"), "Item cannot be null under this context").size() == dataTypeRecord.length) {
                                             ArrayList<Integer> copyOverList = new ArrayList<>();
                                             //dataTypeRecord is responsible for keeping track of the datatypes that are stored within Object[][]
                                             for (int k = 0; k < result.size(); k++) {
                                                 copyOverList.add((Integer) result.get(k)); //copy data over to a new ArrayList, casting the value to an Integer
                                             }
                                             hashMapValueForwarder = copyOverList;
-                                        } else if (Objects.requireNonNull(findIndexesOfElement("Boolean").in(dataTypeRecord).get("Boolean")).size() == dataTypeRecord.length) {
+                                        } else if (Objects.requireNonNull(findIndexesOfElement("Boolean").in(dataTypeRecord).get("Boolean"), "Item cannot be null under this context").size() == dataTypeRecord.length) {
                                             ArrayList<Boolean> copyOverList = new ArrayList<>();
                                             //dataTypeRecord is responsible for keeping track of the datatypes that are stored within Object[][]
                                             for (int k = 0; k < result.size(); k++) {
                                                 copyOverList.add((Boolean) result.get(k)); //copy data over to a new ArrayList, casting the value to a Boolean
                                             }
                                             hashMapValueForwarder = copyOverList;
-                                        } else if (Objects.requireNonNull(findIndexesOfElement("Character").in(dataTypeRecord).get("Character")).size() == dataTypeRecord.length) {
+                                        } else if (Objects.requireNonNull(findIndexesOfElement("Character").in(dataTypeRecord).get("Character"), "Item cannot be null under this context").size() == dataTypeRecord.length) {
                                             ArrayList<Character> copyOverList = new ArrayList<>();
                                             //dataTypeRecord is responsible for keeping track of the datatypes that are stored within Object[][]
                                             for (int k = 0; k < result.size(); k++) {
                                                 copyOverList.add((Character) result.get(k));
                                             }
                                             hashMapValueForwarder = copyOverList;
-                                        } else if (Objects.requireNonNull(findIndexesOfElement("Float").in(dataTypeRecord).get("Float")).size() == dataTypeRecord.length) {
+                                        } else if (Objects.requireNonNull(findIndexesOfElement("Float").in(dataTypeRecord).get("Float"), "Item cannot be null under this context").size() == dataTypeRecord.length) {
                                             ArrayList<Float> copyOverList = new ArrayList<>();
                                             //dataTypeRecord is responsible for keeping track of the datatypes that are stored within Object[][]
                                             for (int k = 0; k < result.size(); k++) {
                                                 copyOverList.add((Float) result.get(k));
                                             }
                                             hashMapValueForwarder = copyOverList;
-                                        } else if (Objects.requireNonNull(findIndexesOfElement("Double").in(dataTypeRecord).get("Double")).size() == dataTypeRecord.length) {
+                                        } else if (Objects.requireNonNull(findIndexesOfElement("Double").in(dataTypeRecord).get("Double"), "Item cannot be null under this context").size() == dataTypeRecord.length) {
                                             ArrayList<Double> copyOverList = new ArrayList<>();
                                             //dataTypeRecord is responsible for keeping track of the datatypes that are stored within Object[][]
                                             for (int k = 0; k < result.size(); k++) {
                                                 copyOverList.add((Double) result.get(k));
                                             }
                                             hashMapValueForwarder = copyOverList;
-                                        } else if (Objects.requireNonNull(findIndexesOfElement("Map").in(dataTypeRecord).get("Map")).size() == dataTypeRecord.length) {   //if string is "Map"
+                                        } else if (Objects.requireNonNull(findIndexesOfElement("Map").in(dataTypeRecord).get("Map"), "Item cannot be null under this context").size() == dataTypeRecord.length) {   //if string is "Map"
                                             ArrayList<Object> copyOverList = new ArrayList<>();
                                         }
                                     } catch (Exception e4) {
@@ -1637,10 +1919,11 @@ final class Tools {
             ArrayList<RegexConditionalCommandSyntaxError> errorList = new ArrayList<>();
             //find all occurrences of '@' within the thing
             int[] atSymbolOccurrences = new StringAddOn(command).selectAllIndexOf('@'); 
-            char[][] referenceFunctionCharArray = new char[][] { "symbol".toCharArray(), "sandwiched".toCharArray(), "declareArray".toCharArray(), "reverse".toCharArray() };
-            char[][] referenceKeyWordCharArray = new char[][] { "end".toCharArray(), "if".toCharArray(), "else".toCharArray() };
-            char[][] acceptableOperatorList = new char[][] { "->".toCharArray(), "()->".toCharArray(), "<-".toCharArray(), "<-()".toCharArray(), "<=".toCharArray(), "<".toCharArray(), ">".toCharArray(), ">=".toCharArray() };
-            char[][] commentsNotation = new char[][] { "!!".toCharArray() };
+            final char[][] referenceFunctionCharArray = new char[][] { "symbol".toCharArray(), "sandwiched".toCharArray(), "declare".toCharArray(), "reverse".toCharArray() };
+            final char[][] datatypesCharArray = new char[][] { "number".toCharArray(), "boolean".toCharArray(), "string".toCharArray(), "array".toCharArray() };
+            final char[][] referenceKeyWordCharArray = new char[][] { "end".toCharArray(), "if".toCharArray(), "else".toCharArray() };
+            final char[][] acceptableOperatorList = new char[][] { "->".toCharArray(), "()->".toCharArray(), "<-".toCharArray(), "<-()".toCharArray(), "<=".toCharArray(), "<".toCharArray(), ">".toCharArray(), ">=".toCharArray() };
+            final char[][] commentsNotation = new char[][] { "!!".toCharArray() };
             if (!(new ArrayUtilsCustom.ArraysExt<String>(basicTokenizing).startsWith("@regexDivision{"))){
                 //did not start with "@"
                 if (basicTokenizing[0].startsWith("@")){
@@ -1664,16 +1947,21 @@ final class Tools {
                         steps = 1;
                         pointerIndexInReference = 0; //initialize both
                         //Till this point the string should have at least @regexDivision{!!!
-                        if (new StringAddOn(command).after('{', 0).advance(steps).getString().equals("\n")){
+                        //if its not a newline this would therefore mean that it might be
+                        if (
+                            new StringAddOn(command).after('{', 0).advance(steps).getString().equals("\n")
+                        ){
 
                         } else if (new StringAddOn(command).after('{', 0).advance(steps).getString().equals("@") ) {
                             int starter = 0;
+                            StringBuilder analyzeCommandWord = new StringBuilder();
                             for(; ; ) {
                                 starter++;
-                                if (starter < referenceFunctionCharArray.length) {
+                                if (starter < referenceFunctionCharArray.length) { //command string splitted into a list of words
                                     for(; ; ){
+                                        //referenceFunctionCharArray[starter] is a list of CHARS!
                                         if (pointerIndexInReference < referenceFunctionCharArray[starter].length){
-
+                                            analyzeCommandWord.append(referenceFunctionCharArray[starter][pointerIndexInReference]);
                                         } else {
                                             break;
                                         }
@@ -1681,6 +1969,11 @@ final class Tools {
                                 } else {
                                     break;
                                 }
+                            } //once the loop ends analyze the string again.
+                            if ("declare".equals(analyzeCommandWord.toString())) {//declare array
+
+                            } else {
+                                throw new RegexConditionalCommandSyntaxError("E3: No such keyword found!");
                             }
                         } else if (new StringAddOn(command).after('{', 0).advance(steps).getString().equals("if")) {
 
@@ -1993,7 +2286,7 @@ final class Tools {
         R execute(P1 param1, P2 param2, P3 param3) throws IncompatibleTypeException;
 
         default <V> TriFunction<P1, P2, P3, V> andThen(Function<? super R, ? extends V> after) {
-            Objects.requireNonNull(after);
+            Objects.requireNonNull(after, "Item cannot be null under this context");
             return (P1 a, P2 b, P3 c) -> after.apply(execute(a, b, c));
         }
     }
@@ -2189,7 +2482,7 @@ final class Binary implements java.io.Serializable{
                         try {
                             //left -> '1' '0' '1' '1'
                             //right -> '1' '0' '1' '0'
-                            int index = Tools.ArrayUtilsCustom.findIndexOfElement(c1).in(Objects.requireNonNull(Tools.Converter.ReferenceTypeConverter.simplifiedToComplexArray(LHS_ARR)));
+                            int index = Tools.ArrayUtilsCustom.findIndexOfElement(c1).in(Objects.requireNonNull(Tools.Converter.ReferenceTypeConverter.simplifiedToComplexArray(LHS_ARR), "Item cannot be null under this context"));
                             expr = LHS_ARR[index] > RHS_ARR[index];
                         } catch (NotAnArrayException | ContentsNotPrimitiveException e) {
                             e.printStackTrace();
@@ -2208,7 +2501,7 @@ final class Binary implements java.io.Serializable{
                         try {
                             //left -> '1' '0' '1' '1'
                             //right -> '1' '0' '1' '0'
-                            int index = Tools.ArrayUtilsCustom.findIndexOfElement(c1).in(Objects.requireNonNull(Tools.Converter.ReferenceTypeConverter.simplifiedToComplexArray(LHS_ARR)));
+                            int index = Tools.ArrayUtilsCustom.findIndexOfElement(c1).in(Objects.requireNonNull(Tools.Converter.ReferenceTypeConverter.simplifiedToComplexArray(LHS_ARR), "Item cannot be null under this context"));
                             expr = LHS_ARR[index] < RHS_ARR[index];
                         } catch (NotAnArrayException | ContentsNotPrimitiveException e) {
                             e.printStackTrace();
@@ -2233,7 +2526,7 @@ final class Binary implements java.io.Serializable{
         char[] output = new char[Math.max(Integer.toString(this.binaryNum).length(), Integer.toString(num.getBinaryNum()).length())];
         do {
             //'1' + '1' = '10'  last digit becomes '0', '1' shifted to before '0'
-            if (Tools.ArrayUtilsCustom.getElementAt(Objects.requireNonNull(cOut).length - tracker).in(cOut) != '1' || Tools.ArrayUtilsCustom.getElementAt(c1Out.length - tracker).in(c1Out) != '1') {// '0' + '0' = '0', still 0 as always
+            if (Tools.ArrayUtilsCustom.getElementAt(Objects.requireNonNull(cOut, "Item cannot be null under this context").length - tracker).in(cOut) != '1' || Tools.ArrayUtilsCustom.getElementAt(c1Out.length - tracker).in(c1Out) != '1') {// '0' + '0' = '0', still 0 as always
                 if (Tools.ArrayUtilsCustom.getElementAt(cOut.length - tracker).in(cOut) == '0' && Tools.ArrayUtilsCustom.getElementAt(c1Out.length - tracker).in(c1Out) == '0') {
                     result += '0';
                 }
@@ -2323,7 +2616,6 @@ final class Binary implements java.io.Serializable{
             assert cOut != null;
             if ((Tools.ArrayUtilsCustom.getElementAt(cOut.length - tracker).in(cOut) == '1' && Tools.ArrayUtilsCustom.getElementAt(c1Out.length - tracker).in(c1Out) == '1')) {
                 //if both characters are equal to '1'
-
             } else {
                 if (Tools.ArrayUtilsCustom.getElementAt(cOut.length - tracker).in(cOut) == '0' && Tools.ArrayUtilsCustom.getElementAt(c1Out.length - tracker).in(c1Out) == '0') {
 
