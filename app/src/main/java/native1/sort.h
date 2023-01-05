@@ -6,6 +6,11 @@
 #define ANIMATIONTEST_SORT_H
 
 class sort {
+    private:
+        struct Node {
+            Node* next;
+
+        };
     public:
         void lowToHigh();
         void HighToLow();

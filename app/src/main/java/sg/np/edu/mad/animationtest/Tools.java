@@ -1,14 +1,21 @@
 package sg.np.edu.mad.animationtest;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.Serializable;
 import java.lang.annotation.*;
 import java.util.*;
+import java.util.concurrent.atomic.*;
 import java.util.function.*;
+import java.util.logging.MemoryHandler;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
-import android.location.Geocoder;
+import android.annotation.SuppressLint;
 import android.util.Log;
+import android.view.SurfaceView;
 
 import com.google.mlkit.common.sdkinternal.Cleaner;
 
@@ -22,6 +29,22 @@ final class Tools {
             private int minutes;
             private double seconds;
             private char hemisphere;
+
+            public int getDegrees(){ return this.deg; }
+
+            public int getMinutes() { return this.minutes; }
+
+            public double getSeconds() { return this.seconds; }
+
+            public char getHemisphere() { return this.hemisphere; }
+
+            public void setHemisphere(char hemisphere) { this.hemisphere = hemisphere; }
+
+            public void setMinutes(int minutes){ this.minutes = minutes; }
+
+            public void setSeconds(double seconds) { this.seconds = seconds; }
+
+            public void setDegrees(int degrees) {this.deg = degrees;}
 
             public enum MajorLatitudes{
                 EQUATOR(new Latitude(0, 0, 0)),
@@ -76,6 +99,10 @@ final class Tools {
                 this.seconds = latSecondsBearing >= 0 && latSecondsBearing <= 60 ? latSecondsBearing : latSecondsBearing % 60;
             }
 
+            public boolean isInNorthernHemisphere() {
+
+            }
+
             @Override
             public boolean equals(final Object other){
                 return (
@@ -100,13 +127,13 @@ final class Tools {
             }
 
             //return the latitude in a string
+            @NonNull
+            @SuppressLint("DefaultLocale")
             @Override
             public String toString(){
-                if (this.hemisphere != '\u0000'){ //no hemisphere means using bearings
-                    return String.format("Latitude: ");
-                } else {
-                    return String.format("Latitude: ");
-                }
+                return this.hemisphere!='\u0000'
+                        ? String.format("Latitude: %d°%d'%.4f\"%c", this.deg, this.minutes, this.seconds, this.hemisphere)
+                        : String.format("Latitude: %d°%d'%.4f\"", this.deg, this.minutes, this.seconds);
             }
         }
 
@@ -115,6 +142,18 @@ final class Tools {
             private int minutes;
             private double seconds;
             private char hemisphere;
+
+            public int getDegrees(){ return this.deg; }
+
+            public int getMinutes() { return this.minutes; }
+
+            public double getSeconds() { return this.seconds; }
+
+            public char getHemisphere() { return this.hemisphere; }
+
+            public void setDegrees(int degrees) { this.deg = degrees; }
+
+
 
             public enum MajorLongitudes{
 
@@ -162,11 +201,21 @@ final class Tools {
                 this.seconds = longSecondsBearing >= 0 && longSecondsBearing <= 60 ? longSecondsBearing : longSecondsBearing % 60;
             }
 
+            public boolean isInWesternHemisphere() {
+                return this.deg <= 0 && this.deg >= -179;
+            }
+
+            public boolean isInEasternHemisphere() {
+                return this.deg >= 0 && this.deg <= 180;
+            }
+
+            @NonNull
+            @SuppressLint("DefaultLocale")
             @Override
             public String toString(){
-                StringBuilder out = new StringBuilder();
-
-                return out.toString();
+                return this.hemisphere != '\u0000'
+                        ? String.format("Longitude: %d°%d'%.4f\"%c", this.deg, this.minutes, this.seconds, this.hemisphere)
+                        : String.format("Longitude: %d°%d'%.4f\"", this.deg, this.minutes, this.seconds);
             }
         }
 
@@ -530,18 +579,77 @@ final class Tools {
                         }
                     }
                 } else {
-                    //Must check how many nested lists are there in the value.
-                    int listStarters = 0; int listTerminators = 0;
                     //check if the item is really of a list, or just a string representation
-                    for (char character : value.toString().toCharArray()){
-                        if (character == '['){
-                            listStarters++;
+                    Character[] array = (Character[]) Converter.ReferenceTypeConverter.simplifiedToComplexArray(value.toString().toCharArray());
+                    HashMap<Character, ArrayList<Integer>> openSquareBracketIndexes = ArrayUtilsCustom.findIndexesOfElement('[').in(array);
+                    HashMap<Character, ArrayList<Integer>> closedSquareBracketIndexes = ArrayUtilsCustom.findIndexesOfElement(']').in(array);
+                    AtomicIntegerArray openAndClosedSquareBracketRecord = new AtomicIntegerArray(new int[] { -1, -1 });
+                    Objects.requireNonNull(openSquareBracketIndexes.get('[')).forEach(i -> { //i returns the index positions of '['
+                        try {
+                            if (i - 1 >= 0) {
+                                if ((String.valueOf((Character) ArrayUtilsCustom.getElementAt(i - 1).in(array)) + (Character) ArrayUtilsCustom.getElementAt(i - 2).in(array)).equals(", ")) {
+                                    //start of a list
+                                    openAndClosedSquareBracketRecord.set(0, i);
+                                    //find the corresponding closing bracket
+                                    Objects.requireNonNull(closedSquareBracketIndexes.get(']')).forEach(j -> {
+                                        try {
+                                            if (j + 1 <= array.length){
+                                                //we have successfully found the corresponding closing bracket
+                                                if (((Character) ArrayUtilsCustom.getElementAt(j + 1).in(array)).equals(',') ||
+                                                    ((Character) ArrayUtilsCustom.getElementAt(j + 1).in(array)).equals(']')
+                                                ){
+                                                    openAndClosedSquareBracketRecord.set(1, j);
+                                                }
+                                            } else {
+                                                openAndClosedSquareBracketRecord.set(1, j);
+                                            }
+                                        } catch (NotAnArrayException | ContentsNotPrimitiveException e1) {
+                                            e1.printStackTrace();
+                                        }
+                                    });
+                                }
+                            } else {
+                                openAndClosedSquareBracketRecord.set(0, i);
+                            }
+                            // openAndClosedSquareBracketRecord, index position 0 and 1 holds some kind of values, which are the index positions of the opening and closing brackets.
+                            // process now
+                            for (int k = openAndClosedSquareBracketRecord.get(0); k < openAndClosedSquareBracketRecord.get(1); ++k) {
+                                StringBuilder valueTypeTestingContainer = new StringBuilder();
+                                do {
+                                    valueTypeTestingContainer.append(value.toString().toCharArray()[k]);
+                                    ++k; //it will add one to the value of k
+                                } while (!String.valueOf(new char[]{value.toString().toCharArray()[k], value.toString().toCharArray()[k + 1]}).equals(", "));
+                                List<Character> valueTypeTestingContainerAsCharArr = Arrays.stream((Character[]) Objects.requireNonNull(Converter.ReferenceTypeConverter.simplifiedToComplexArray(valueTypeTestingContainer.toString().toCharArray()))).collect(Collectors.toList());
+
+
+                                //data forming a value of type "String"
+                                Class<?> type = valueTypeTestingContainerAsCharArr.contains('.') ? ((Function<List<Character>, Class<?>>) x -> {
+                                    //Check the format return a class
+                                    AtomicIntegerArray result = new AtomicIntegerArray(new int[] { });
+                                    ((Supplier<List<Character>>) () -> {
+                                        AtomicReference<List<Character>> d = new AtomicReference<>(new ArrayList<>());
+                                        Arrays.stream(x.toArray()).filter(it -> !(it.equals("."))).collect(Collectors.toList()).forEach(internal -> {
+                                            List<Character> e = new ArrayList<>();
+                                            e.add((Character) internal);
+                                            d.set(e);
+                                        });
+                                        return d.get();
+                                    }).get().forEach(internal -> {
+                                        int id = 0;
+                                        result.set(id, internal >= '0' || internal <= '9' ? 1 : 0);
+
+                                    });
+                                }).apply(valueTypeTestingContainerAsCharArr) : String.class;
+
+                            }
+                            //initialize the values.
+                            for (int k = 0; k < openAndClosedSquareBracketRecord.length(); ++k){
+                                openAndClosedSquareBracketRecord.set(k, -1);
+                            }
+                        } catch (NotAnArrayException | ContentsNotPrimitiveException e) {
+                            e.printStackTrace();
                         }
-                        if (character == ']'){
-                            listTerminators++;
-                        }
-                    }
-                    int result = ((Integer) Converter.ReferenceTypeConverter.primitiveToReferenceType(listStarters)).compareTo((Integer) Converter.ReferenceTypeConverter.primitiveToReferenceType(listTerminators));
+                    });
                 }
             }
             else {
@@ -634,6 +742,52 @@ final class Tools {
                 //Check if current cell is empty
                 is.intArrSetAt(is.intArrGetter(), is.intArrGetter()[initializer] == 0 ? initializer : initializer + 1, result);
                 is.stringArrSetAt(is.stringArrGetter(), initializer, sample.get(result) instanceof String ? "Boolean" : sample.get(result) instanceof Integer ? "Integer" : sample.get(result) instanceof Double ? "Double" : );
+            }
+        }
+
+        public static class InternalArrayListStorageSearchingSingle {
+            private Object target;
+
+            private InternalArrayListStorageSearchingSingle(Object target){
+                this.target = target;
+            }
+
+            //find index of something, but the array must be storing reference types, primitive types are not permitted over here
+            public <T> int in(@NonNull ArrayList<T> charArr) throws ContentsNotPrimitiveException, NotAnArrayException {
+                //filter away null items.
+                List<Object> copyOver = Arrays.stream(Objects.requireNonNull(charArr).toArray()).filter(Objects::nonNull).collect(Collectors.toList());
+                for (Object obj : copyOver){
+                    if (obj != null){ //impossible to tell which class 'null' belongs to....
+                        if (obj.toString().contains(".")){
+                            String[] tempSplit = obj.toString().split(".");
+                            if (tempSplit.length > 2){
+                                String castObjIntoString = (String) obj; //by default everything becomes a string.
+
+                            } else { //length only 2.
+                                int[] trimmedLengths = new int[]{
+                                        (int) Arrays.stream((Character[]) Objects.requireNonNull(Converter.ReferenceTypeConverter.simplifiedToComplexArray(tempSplit[0].toCharArray()))).filter(it -> it >= '0' && it <= '9').count(),
+                                        (int) Arrays.stream((Character[]) Objects.requireNonNull(Converter.ReferenceTypeConverter.simplifiedToComplexArray(tempSplit[1].toCharArray()))).filter(it -> it >= '0' && it <= '9').count()
+                                };
+                                for (int i = 0; i < trimmedLengths.length; ++i){
+                                    if (tempSplit[i].toCharArray().length != trimmedLengths[i]){
+                                        //it is a string.
+
+                                    } else {
+                                        // it  is a double in this context......
+                                    }
+                                }
+                            }
+                        } else { //It does not have a decimal point, there might be a possibility that the object is not of type
+
+                        }
+                    }
+                }
+            }
+        }
+
+        public static InternalArrayListStorageSearchingSingle findElement(@NonNull Object elem) {
+            if (Objects.requireNonNull(elem) instanceof String){
+
             }
         }
 
